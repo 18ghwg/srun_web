@@ -1,0 +1,145 @@
+{% extends "user/header.html" %}
+{% block title %}设置用户信息{% endblock %}
+{% block css %}
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header"><div class="card-title">设置用户信息-{{ UserName }}</div></header>
+                        <div class="card-body">
+
+                            <form id="form" class="form">
+                                <input type="text" id="user_name" name="user_name" value="{{ UserName }}" hidden="hidden"/>
+                                <div class="mb-3 col-md-12">
+                                    <label for="password" class="form-label">密码<br></label>
+                                    <input type="text" class="form-control" id="password" name="password" value="{{ Password }}" placeholder="密码" />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="qqh" class="form-label">QQ号</label>
+                                    <input type="text" class="form-control" id="qqh" name="qqh" value="{{ QQh }}" placeholder="QQ号" />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="email" class="form-label">邮箱</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{% if not Email %}{% else %}{{ Email }}{% endif %}" placeholder="请填写邮箱"  />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="wxuid" class="form-label">微信订阅id</label>
+                                    <input type="text" class="form-control" id="wxuid" name="wxuid" value="{% if not WxUid %}{% else %}{{ WxUid }}{% endif %}" placeholder="请填写微信消息订阅id"  />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="user_lib" class="form-label">用户类型</label>
+                                    <input type="text" class="form-control" id="user_lib" name="user_lib" value="{{ UserLib }}" placeholder="请填写用户类型"  />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <button id="login-btn" type="submit" class="btn btn-primary">保存</button>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+
+
+{% block js %}
+    <!--灯箱效果插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/magnific-popup/magnific-popup.min.js') }}"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <!--表单验证插件-->
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/formValidation.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/framework/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/language/zh_CN.js') }}"></script>
+    <!--对话框插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        //前端表单验证
+        $('#form').formValidation({
+            fields: {
+                password: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+                qqh: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+                user_lib: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+            }
+        }).on('success.form.fv', function (e) {
+            //阻止表单提交
+            e.preventDefault();
+            //得到表单对象
+            let $form = $(e.target);
+            let data = $form.serialize();
+
+            //得到序列化数据
+            $.ajax({
+                url: "{{ url_for('user.set_user_info') }}",
+                method: 'POST',
+                data
+            }).then(function (res) {
+                $.alert(res.msg);
+                if(res.code===200){
+                    notify(res.msg, 'success', 1500);
+
+                }
+                else{
+                    notify(res.msg, 'danger', 3000);
+                }
+
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,407 @@
+{#已使用卡密列表#}
+{% extends "user/header.html" %}
+{% block  title%}{% if UserLib != "管理员" %}已使用卡密列表{% else %}卡密列表{% endif %}{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+{% endblock %}
+
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header">
+                            <div class="card-title">{% if UserLib != "管理员" %}已使用卡密列表{% else %}卡密列表{% endif %}</div>
+                        </header>
+                        {#模态框start#}
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                        </symbol>
+                                        <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                                        </symbol>
+                                        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </symbol>
+                                    </svg>
+
+                                    <div class="modal-header">
+                                        <h6 class="modal-title">卡密转移</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                            <div>
+                                                仅支持转移到你的下级代理
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="SubAgentUser" class="col-form-label custom-cursor-default-hover">卡密接收者：</label>
+                                            <input type="text" class="form-control" id="SubAgentUser" placeholder="卡密接收的用户名" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_modal()">关闭</button>
+                                        <button type="button" class="btn btn-primary" id="saveButton">转移</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {#模态框end#}
+                        <div class="card-body">
+                            <div id="toolbar" class="toolbar-btn-action">
+                                {% if UserLib == "管理员" %}
+                                    <button id="btn_transfer" type="button" class="btn btn-success" onclick="showModal()">
+                                        <span class="mdi mdi-arrow-top-right-bold-box-outline" aria-hidden="true"></span>转移
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <table id="table"></table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--表格插件js-->
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+
+        /**
+         * 分页相关的配置
+         **/
+        const pagination = {
+            // 分页方式：[client] 客户端分页，[server] 服务端分页
+            sidePagination: "server",
+            search: true, //******开启搜索框****//
+            searchOnEnterKey:false, //******回车后执行搜索****//
+            trimOnSearch: true, //******自动去除关键词两边空格****//
+            // 初始化加载第一页，默认第一页
+            pageNumber: 1,
+            // 每页的记录行数
+            pageSize: 10,
+            // 可供选择的每页的行数 - (亲测大于1000存在渲染问题)
+            pageList: [5, 10, 25, 50, 100],
+            // 在上百页的情况下体验较好 - 能够显示首尾页
+            paginationLoop: true,
+            // 展示首尾页的最小页数
+            paginationPagesBySide: 2
+        };
+
+        /**
+         * 按钮相关配置
+         **/
+        const button = {
+            // 按钮的类
+            buttonsClass: 'default',
+            // 类名前缀
+            buttonsPrefix: 'btn'
+        }
+
+        /**
+         * 图标相关配置
+         **/
+        const icon = {
+            // 图标前缀
+            iconsPrefix: 'mdi',
+            // 图标大小
+            iconSize: 'mini',
+            // 图标的设置
+            icons: {
+                paginationSwitchDown: 'mdi-door-closed',
+                paginationSwitchUp: 'mdi-door-open',
+                refresh: 'mdi-refresh',
+                toggleOff: 'mdi-toggle-switch-off',
+                toggleOn: 'mdi-toggle-switch',
+                columns: 'mdi-table-column-remove',
+                detailOpen: 'mdi-plus',
+                detailClose: 'mdi-minus',
+                fullscreen: 'mdi-monitor-screenshot',
+                search: 'mdi-table-search',
+                clearSearch: 'mdi-trash-can-outline'
+            }
+        };
+
+        /**
+         * 表格相关的配置
+         **/
+        const table = {
+            classes: 'table table-bordered table-hover table-striped lyear-table',
+            // 请求地址
+            url: '{{ url_for("user_kami.use_kami_list") }}',
+            // 唯一ID字段
+            uniqueId: 'id',
+            // 可编辑列表
+            editable: 'true',
+            // 每行的唯一标识字段
+            idField: 'id',
+            // 是否启用点击选中行
+            clickToSelect: true,
+            // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+            // showToggle: true,
+            // 请求得到的数据类型
+            dataType: 'json',
+            // 请求方法
+            method: 'post',
+            // 工具按钮容器
+            toolbar: '#toolbar',
+            // 是否分页
+            pagination: true,
+            // 是否显示所有的列
+            showColumns: true,
+            // 是否显示刷新按钮
+            showRefresh: true,
+            // 显示图标
+            showButtonIcons: true,
+            // 显示文本
+            showButtonText: false,
+            // 显示全屏
+            showFullscreen: true,
+            // 开关控制分页
+            showPaginationSwitch: true,
+            // 总数字段
+            totalField: 'total',
+            // 当字段为 undefined 显示
+            undefinedText: '-',
+            // 排序方式
+            sortOrder: "asc",
+            ...icon,
+            ...pagination,
+            ...button
+        };
+
+        /**
+         * 用于演示的列信息
+         **/
+        const columns = [{
+            field: 'example',
+            checkbox: true,
+            // 列的宽度
+            width: 5,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'id',
+            title: '编号',
+            // 使用[align]，[halign]和[valign]选项来设置列和它们的标题的对齐方式。
+            // h表示横向，v标识垂直
+            align: 'center',
+            // 是否作为排序列
+            sortable: true,
+            // 当列名称与实际名称不一致时可用
+            sortName: 'sortId',
+            switchable: false,
+            // 列的宽度
+            width: 8,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'Kami',
+            align: 'center',
+            title: '卡密',
+            titleTooltip: '已使用卡密内容'
+        }, {
+            field: 'KamiLib',
+            align: 'center',
+            title: '类型',
+            titleTooltip: '卡密类型'
+        }, {
+            field: 'Day',
+            align: 'center',
+            title: '天数',
+            titleTooltip: '卡密价值的天数',
+        }, {
+            field: 'Num',
+            // 是否可视(默认 - true)
+            {#visible: false,#}
+            align: 'center',
+            title: '次数',
+            titleTooltip: '卡密价值的跑步次数'
+        }, {
+            field: 'UseName',
+            align: 'center',
+            title: '使用人',
+            titleTooltip: '使用卡密的阳光跑姓名'
+        }, {
+            field: 'UseUser',
+            align: 'center',
+            title: '使用用户',
+            titleTooltip: '使用卡密的网站用户'
+        }, {
+            field: 'UseDate',
+            align: 'center',
+            title: '卡密使用时间',
+            titleTooltip: '卡密使用时间'
+        }
+            {% if UserLib == "管理员" %}
+                , {
+                field: 'SCUser',
+                align: 'center',
+                title: '生成者',
+                titleTooltip: '生成卡密的用户'
+            }
+            {% endif %}
+            , {
+                field: 'SCDate',
+                align: 'center',
+                title: '卡密生成时间',
+                titleTooltip: '卡密生成时间'
+            }, {
+                field: 'State',
+                title: '状态',
+                formatter:function(value, row, index){
+                    var value="";
+                    if (row.State == '0') {
+                        value = '<span class="badge bg-success">未使用</span>';
+                    } else if(row.State == '1') {
+                        value = '<span class="badge bg-danger">已使用</span>';
+                    } else {
+                        value = '<span class="badge bg-secondary">未知</span>' ;
+                    }
+                    return value;
+                }
+            },];
+
+        {% if UserLib == "管理员" %}
+            function close_modal() {
+                // 关闭模态框
+                $('#myModal').modal('hide');
+            };
+            function showModal() {
+                $('#myModal').modal('show');
+            }
+            $('#saveButton').click(function () {
+                $.confirm({
+                    title: '卡密转移',
+                    content: '是否对选中的卡密进行转移',
+                    autoClose: 'cancelAction|10000',
+                    escapeKey: 'cancelAction',
+                    buttons: {
+                        confirm: {
+                            btnClass: 'btn-red',
+                            text: '》确认转移《',
+                            action: function() {
+                                var SubAgentUser = $('#SubAgentUser').val();
+                                if (!SubAgentUser){
+                                    $.alert("卡密接受者不能为空！")
+                                    return;
+                                }
+                                $.ajax({
+                                    url: '{{ url_for('user.check_user_existence') }}',
+                                    method: 'POST',
+                                    data: {"UserName": SubAgentUser},
+                                    success: function(response) {
+                                        if (!response.exists) {
+                                            $.alert('该用户不存在，请检查用户名：'+SubAgentUser+'是否正确');
+                                        } else {
+                                            {#读取表单数据并改写卡密生成者提交数据给后端#}
+                                            var selectedRows = $('#table').bootstrapTable('getSelections');
+                                            var data = [];
+                                            for (var i = 0; i < selectedRows.length; i++) {
+                                                var row = selectedRows[i];
+                                                row.SCUser = SubAgentUser;
+                                                data.push(row);
+                                            }
+                                            console.log('修改的数据为：', data);
+                                            // 在这里通过post请求将修改的数据传给后端
+                                            $.ajax({
+                                                url: '{{ url_for('user_kami.kami_transfer') }}',
+                                                type: 'post',
+                                                contentType: 'application/json',
+                                                data: JSON.stringify(data),
+                                                success: function (result) {
+                                                    console.log('修改成功');
+                                                    $('#table').bootstrapTable('refresh'); // 重载列表
+                                                    $.alert(result.msg)
+                                                },
+                                                error: function (error) {
+                                                    console.log('修改失败', error);
+                                                }
+                                            });
+                                            $('#myModal').modal('hide');
+                                        }
+                                    }
+                                });
+                            }
+                        },
+                        cancelAction: {
+                            text: '取消',
+                            action: function() {
+
+                            }
+                        }
+                    }
+                });
+            });
+        {% endif %}
+
+        $('table').bootstrapTable({
+            ...table,
+            // 自定义的查询参数
+            queryParams: function (params) {
+                return {
+                    // 搜索的数值
+                    search: params.search,
+                    // 每页数据量
+                    limit: params.limit,
+                    // sql语句起始索引
+                    offset: params.offset,
+                    page: (params.offset / params.limit) + 1,
+                    // 排序的列名
+                    sort: params.sort,
+                    // 排序方式 'asc' 'desc'
+                    sortOrder: params.order
+                };
+            },
+            columns,
+            onLoadSuccess: function(data){
+                $("[data-bs-toggle='tooltip']").tooltip();
+            }
+        });
+
+    </script>
+
+{% endblock %}

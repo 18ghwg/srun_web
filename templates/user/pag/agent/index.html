@@ -1,0 +1,541 @@
+<!DOCTYPE html><html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <title>{{ WebName }}</title>
+    <meta name="description" content="免费刷阳光体育,自动跑阳光体育,邮件通知跑步结果">
+    <meta name="keywords" content="刷阳光体育,自动跑">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="{{ url_for('static', filename='agent/css/prism.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='agent/css/morris.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='agent/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://lib.baomitu.com/MaterialDesign-Webfont/4.8.95/css/materialdesignicons.min.css" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='agent/css/style.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='agent/css/alertify.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='agent/css/clock/bootstrap-clockpicker.css') }}">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+</head>
+<body class="fixed-left">
+
+<body>
+<div class="alert alert-info hide" style="visibility: visible; position: fixed; top: 20px; width: 50%; margin-left: 50%; z-index: 3000;"><span id="name"></span></div>
+</body>
+
+<div id="wrapper">
+    <!-- ========== Left Sidebar Start ========== -->
+    <!-- Header -->
+    <div class="left side-menu">
+        <button type="button" class="button-menu-mobile button-menu-mobile-topbar open-left waves-effect">
+            <i class="mdi mdi-close"></i>
+        </button>
+        <!-- LOGO -->
+        <div class="topbar-left">
+            <div class="text-center">
+                <a href="#" class="logo"><i class="mdi mdi-assistant"></i>{{ WebName }}</a>
+            </div>
+        </div>
+        <div class="sidebar-inner slimscrollleft">
+            <div id="sidebar-menu">
+                <ul>
+                    <li class="menu-title">主菜单</li>
+                    <li>
+                        <a href="{{ WebConfig.WebUrl }}/agent/{{ WebKey }}" class="waves-effect">
+                            <i class="mdi mdi-run"></i>
+                            <span> 提交账号 </span>
+                        </a>
+                    </li>
+                    <li class="menu-title">更多</li>
+                    <li>
+                        <a target="_blank" href="{{ url_for('agent.put_run_time') }}" class="waves-effect">
+                            <i class="mdi mdi-timeline-clock"></i>
+                            <span>修改跑步时间</span>
+                        </a>
+                    </li>
+                    {% if QQGroup %}
+                        <li>
+                            <a target="_blank" href="{{ QQGroup }}" class="waves-effect">
+                                <i class="mdi mdi-qqchat"></i>
+                                <span>QQ群</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="clearfix"></div>
+        </div> <!-- end sidebarinner -->
+    </div>
+    <!-- End -->
+    <!-- Start right Content here -->
+    <div class="content-page">
+        <!-- Start content -->
+        <div class="content">
+            <!-- Top Bar Start -->
+            <!-- header -->
+            <div class="topbar">
+
+                <nav class="navbar-custom">
+
+                    <ul class="list-inline float-right mb-0">
+
+                        <!-- language-->
+                        <li class="list-inline-item dropdown notification-list">
+                            <a class="nav-link dropdown-toggle arrow-none waves-effect nav-user" href="#">
+                                <img src="http://q2.qlogo.cn/headimg_dl?dst_uin={{ Kfqq }}&spec=100" alt="user" class="rounded-circle">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
+                                <!-- item-->
+                                <div class="dropdown-item noti-title">
+                                    <h5></h5>
+                                </div>
+                            </div>
+
+                        </li>
+                    </ul>
+                    <ul class="list-inline menu-left mb-0">
+                        <li class="float-left">
+                            <button class="button-menu-mobile open-left waves-light waves-effect"><strong>&equiv;</strong>
+                            </button>
+                        </li>
+                        <center>
+                            <div class="navbar-header" style="height: 1px;">
+                                <i class="mdi mdi-assistant"></i><a  href="#" class="logo">{{ WebName }}</a>
+                            </div>
+                        </center>
+                    </ul>
+                    <div class="clearfix"></div>
+                </nav>
+            </div>
+            <!-- End -->
+            <!-- Top Bar End -->
+            <div class="page-content-wrapper ">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="page-title-box">
+                                <h4 class="page-title">{{ WebName }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    {% if WebConfig.AgentWebGG %}
+                        <div class="alert alert-success">
+                            <span class="glyphicon glyphicon-bullhorn"></span>
+                            <strong>公告：</strong> {{ WebConfig.AgentWebGG }}
+                        </div>
+                    {% endif %}
+                    <!-- end page title end breadcrumb -->
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                            <div class="card m-b-30">
+                                <div class="card-body">
+                                    <div class="d-flex flex-row">
+                                        <div class="col-12 col-sm-8 align-self-center text-center">
+                                            <div class="m-l-10 ">
+                                                {# 公告start-自动转义 #}
+                                                {% autoescape false %}
+                                                {{ WebGG }}
+                                                {{ will_not_be_escaped }}
+                                                {% endautoescape %}
+                                                {# 公告end #}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+
+                            <div class="card m-b-30">
+                                <div class="card-body">
+                                    <form action="#" target="_top" method="POST">
+                                        <!--                                        <h4 class="mt-0 header-title">Token</h4>-->
+                                        <h4 class="mt-0 header-title">IMEICode</h4>
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" placeholder="请填写IMEICode" value="" id="IMEICode" name="IMEICode">
+                                                    <span class="input-group-btn">
+                                                        <a href="#"><button id="qrc_login" class="btn btn-default" data-toggle="collapse" data-target="#qrc_div" aria-expanded="false" aria-controls="qrc_div" style="color: #c1426a" type="button">扫码获取</button></a>
+                                                    </span>
+                                                </div>
+                                                <div class="modal fade" id="use-kami" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                <h4 class="modal-title" id="exampleModalLabel">请输入卡密</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form>
+                                                                    <br>
+                                                                    <br>
+                                                                    <br>
+                                                                    <div class="form-group">
+                                                                        <hr>
+                                                                        <h3>登陆成功</h3>
+                                                                        <div style="display: block" id="qrc_user_info">
+                                                                            <h4>信息</h4>
+                                                                            <strong>姓名：<a id="qrc_user_name"></a></strong><br>
+                                                                            <strong>学校：<a id="qrc_user_school"></a></strong><br>
+                                                                            <strong>userid：<a id="qrc_user_userid"></a></strong><br>
+                                                                            <input type="text" style="display: none" id="qrc_user_token">
+                                                                            <hr>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <h2>请输入扫码授权卡密</h2>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="qrc_kami" class="control-label">扫码卡密:</label>
+                                                                        <textarea class="form-control" id="qrc_kami" name="qrc_kami" onkeyup="value=value.replace(/\s+/g, '')" placeholder="输入你购买的扫码授权卡密"></textarea>
+                                                                    </div>
+                                                                    <h3 style="color: red;">提示：只能输入扫码授权卡密，其他卡密不可使用</h3>
+                                                                </form>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                                                <button type="button" class="btn btn-primary" id="qrc-use-kami">使用卡密</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="collapse" id="qrc_div">
+                                                    <div class="well">
+                                                        <div id="uuid" style="display: none"></div>
+                                                        <div id="log_img" style="text-align: center; height: 180px; width: 180px"></div>
+                                                        <div class="caption">
+                                                            <h3>扫码提示</h3>
+                                                            <p style="color: #6f42c1">请使用另外一部手机微信扫码登录</p>
+                                                            <p style="color: #06490e">登录完毕点击按钮[我已登录]自动获取IMEICode</p>
+                                                            <p><a href="#" class="btn btn-success" role="button" id="check_login">我已登录</a>
+                                                                <a href="#" class="btn btn-warning" role="button" id="get_login_img_url">重获二维码</a></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="mt-0 header-title">几点跑？</h4>
+                                        <div class="form-group row">
+                                            <div class="col-sm-10 clockpicker" data-autoclose="true">
+                                                <input type="text" maxlength="0" id="run_time" name="run_time" class="form-control" placeholder="--选择跑步时间--">
+                                            </div>
+                                        </div>
+
+                                        <div style="display: none" id="kami-div">
+                                            <h4 class="mt-0 header-title">卡密</h4>
+                                            <div class="form-group row">
+                                                <div class="col-sm-10">
+                                                    <input class="form-control" type="text" placeholder="请输入你的卡密" onkeyup="value=value.replace(/\s+/g, '')" value="" id="kami" name="kami">
+                                                </div>
+                                            </div></div>
+
+                                        <div class="text-center m-t-15" id="jx-btn">
+                                            <button type="button" id="Onejx" class="btn btn-primary" data-toggle="collapse" data-target="#add_info" aria-expanded="true" aria-controls="collapseExample">提交</button>
+                                        </div><br>
+                                        <div class="collapse" id="add_info">
+                                            <div class="well">
+                                                <span id="add_res"></span>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!-- end col -->
+                </div>
+            </div><!-- container -->
+        </div> <!-- Page content Wrapper -->
+    </div> <!-- content -->
+    <footer class="footer">
+        <div> © 2022 <a href="">观后无感</a> 版权所有</div>
+    </footer>
+</div>
+<!-- End Right content here -->
+
+<!-- END wrapper -->
+<script src="{{ url_for('static', filename='agent/js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='agent/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='agent/js/jquery.slimscroll.min.js') }}"></script>
+<script src="{{ url_for('static', filename='agent/js/jquery.blockUI.min.js') }}"></script>
+<!-- Alertify js -->
+<script src="{{ url_for('static', filename='agent/js/alertify.js') }}"></script>
+<script src="{{ url_for('static', filename='agent/js/clipboard.min.js') }}"></script>
+<script src="{{ url_for('static', filename='agent/js/app.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='agent/js/clock/bootstrap-clockpicker.js') }}"></script>
+<!--对话框插件-->
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            }
+        }
+    });
+    {#  $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+          if (jqxhr.status === 400) {
+              // 跳转到CSRF验证失败的页面
+              window.location.href = '{{ url_for('csrf_error_index') }}';
+          }
+      });#}
+
+    $("#Onejx").click(function() {
+        //定时关闭
+        window.setTimeout(function(){
+            $(".alert-info").removeClass("show");
+        },6000);//显示的时间
+        const IMEICode = $("#IMEICode").val();
+        const run_time = $("#run_time").val();
+        const kami = $("#kami").val();
+        const kami_input = document.getElementById("kami-div");  // 卡密输入框
+        if (IMEICode === "") {
+            alertify.alert("您还没有输入Token！");
+            return false;
+        }
+        if (IMEICode.search('=') !== -1){
+            alertify.alert("token是=后面的32位字符");
+            return false;
+        }
+        if ((IMEICode.length) !== 32){
+            alertify.alert("IMEICode是32位字符");
+            return false;
+        }
+        if (run_time === "") {
+            alertify.alert("时间为空！");
+            return false;
+        }
+        if (run_time.search('：') !== -1){
+            alertify.alert("跑步时间应使用英文冒号！");
+            return false;
+        }
+        if (kami_input.style.display !== "none") {
+            if (kami === "") {
+                alertify.alert("未输入卡密");
+                return false;
+            }
+
+        }
+        document.getElementById("add_res").innerHTML="正在提交..."; // token提交结果
+        $.ajax({
+            url: '{{ url_for("user_imei.agent_add_imei") }}',
+            method: 'POST',
+            data: {"IMEICode": IMEICode, "RunTime": run_time, "Kami": kami},
+            success: function(res){
+                var ts_msg = res.msg;
+                document.getElementById('add_info').className = "collapse.in";  // 常显
+                document.getElementById("add_res").innerHTML=res.msg; // IMEICode提交结果
+                $(".alert-info").addClass("show");
+                if (res.code === 202) {
+                    kami_input.style.display = "block"; // 显示卡密输入框
+                    ts_msg = res.msg2
+                }
+                document.getElementById("name").innerHTML=ts_msg;
+                $.alert(ts_msg);
+                if(res.wxpusher){
+                    $.alert('<a style="color: red">你的账号已经添加成功了<br>请绑定微信跑步通知</a><br>' +
+                        '<a style="color: #00aced">请微信扫码关注公众号绑定通知</a><br>'+
+                        '<img src="'+ res.wxpusher.img +'" alt=""><br>'+
+                        '<a style="color: #0a0a0a">或者发送以下代码到微信公众号：wxpusher 进行绑定跑步账号</a><br>'+
+                        '<a style="color: #6f42c1" ">代码：'+res.wxpusher.code+'</a>');
+                }
+            },
+            error: function(msg){
+                //信息框
+                $(".alert-info").addClass("show");
+                var code = msg.status;
+                if(code === 429){
+                    console.log("consloe");
+                }else if(code === 500){
+                    $.alert("服务器响应失败, 请联系管理员处理");
+                }else if(code === 403){
+                    console.log("consloe");
+                }
+            }
+
+        })
+
+    })
+    // 检测登录状态
+    function check_login(){
+        $('#check_login').on('click', function(event){
+            //定时关闭
+            window.setTimeout(function(){
+                $(".alert-info").removeClass("show");
+            },6000);//显示的时间
+            //信息框
+            $(".alert-info").addClass("show");
+            //对html传值
+            document.getElementById("name").innerHTML="检测登录状态中...";
+            const qrc_img_url =  $('#qrc_img').attr('src');  //二维码地址
+            const uuid = document.getElementById('uuid').innerHTML;  // uuid
+            const img_div = document.getElementById("log_img");  // 图片框
+            const input = document.getElementById("IMEICode");  //获取input对象
+            const qrc_kami = $("#qrc-kami").val();  // qrc卡密
+            const data = {"qrc_img_url": qrc_img_url, "uuid": uuid};
+            if (qrc_kami !== "") {
+                data.kami = qrc_kami
+            }
+            $.ajax({
+                url: '{{ url_for('user_qrc.qrc_check_login') }}',
+                method: 'POST',
+                data: data,
+                success: function(res){
+                    img_div.style.display="none";  // 隐藏二维码
+                    //对html传值
+                    if (res.code === 200){
+                        $(".alert-info").addClass("show");
+
+                        document.getElementById("name").innerHTML="获取到IMECode！已自动填写！";
+                        input.value = res.IMEICode; // 设置token input value
+
+                    }else if (res.code === 400){
+                        $(".alert-info").addClass("show");
+                        document.getElementById("qrc_user_info").style.display = "block";
+                        document.getElementById("name").innerHTML="非授权用户！请填购买卡密后进行授权！";
+                        document.getElementById("qrc_user_name").innerHTML=res.name;
+                        document.getElementById("qrc_user_school").innerHTML=res.school;
+                        document.getElementById("qrc_user_userid").innerHTML=res.userid;
+                        document.getElementById("qrc_user_token").value = res.token;
+                        input.value = "请点击下方二维码按钮重新扫码登录";  // token输入框
+                        $('#use-kami').modal('toggle')  // 窗口
+                    }else{
+                        $(".alert-info").addClass("show");
+                        document.getElementById("name").innerHTML="未登录！";
+                    }
+
+                },
+                error: function(msg){
+                    var code = msg.status;
+                    if(code === 429){
+                        document.getElementById("name").innerHTML="频繁请求！";
+                    }else if(code === 403){
+                        document.getElementById("name").innerHTML="erro: 非法请求！";
+                    }else if(code === 500){
+                        document.getElementById("name").innerHTML="erro: 接口请求失败！";
+                    }
+                }
+
+            })
+        });
+    }
+
+    // 获取登录二维码
+    function get_login_img(){
+        $('#get_login_img_url, #qrc_login').on('click', function(event){
+            //定时关闭
+            window.setTimeout(function(){
+                $(".alert-info").removeClass("show");
+            },3000);//显示的时间
+            //信息框
+            $(".alert-info").addClass("show");
+            //对html传值
+            var get_img_button=document.getElementById("qrc_login");  // 获取二维码按钮
+            const uuid = document.getElementById('uuid');  // uuid
+            get_img_button.style.display="none";  // 隐藏按钮
+            document.getElementById("name").innerHTML="正在获取...";
+            $.ajax({
+                url: '{{ url_for('user_qrc.get_qrc_img') }}',
+                method: 'POST',
+                {#headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },#}
+                success: function(res){
+                    var obj=document.getElementById("log_img");  // 图片框
+                    obj.style.display="block";  // 显示二维码
+                    obj.innerHTML='<img id="qrc_img" src="' + res["img_url"] + '" height="180px" width="180px" />'
+                    uuid.innerHTML = res['uuid'];
+                    if (res['code'] === 200) {
+                        document.getElementById("name").innerHTML="获取成功";
+                    }
+                    else if(res['code'] === 400){
+                        document.getElementById("name").innerHTML="失败！";
+                    }
+
+                },
+                error: function(msg){
+                    //信息框
+                    $(".alert-info").addClass("show");
+                    var code = msg.status;
+                    if(code === 429){
+                        document.getElementById("name").innerHTML="频繁请求！";
+                    }else if(code === 403){
+                        document.getElementById("name").innerHTML="erro: 非法请求！";
+                    }else if(code === 500){
+                        document.getElementById("name").innerHTML="erro: 接口请求失败！";
+                    }
+                }
+
+            })
+        });
+    }
+
+    // 兑换卡密
+    function qrc_use_kami(){
+        $('#qrc-use-kami').on('click', function(event) {
+            //定时关闭
+            window.setTimeout(function(){
+                $(".alert-info").removeClass("show");
+            },6000);//显示的时间
+            document.getElementById("name").innerHTML="正在提交..";
+            const token = document.getElementById("qrc_user_token").value;
+            const kami = $("textarea[name='qrc_kami']").val();
+            if (kami === "") {
+                $(".alert-info").addClass("show");
+                document.getElementById("name").innerHTML="卡密不能为空";
+            }
+
+            $.ajax({
+                url: '{{ url_for('user_kami.agent_user_kami') }}',
+                method: 'POST',
+                data:{"Token": token, "Kami": kami},
+                success: function(res){
+                    var ts_msg = res.msg;
+                    if (res.code === 200){
+                        ts_msg += '<br><a style="color: red">请返回界面重新扫码登录提交你的IMEICode</a>'
+                    }
+                    $.alert(ts_msg);
+                    $(".alert-info").addClass("show");
+                    document.getElementById("name").innerHTML=res.msg;
+                },
+                error: function(msg){
+                    //信息框
+                    $(".alert-info").addClass("show");
+                    var code = msg.status;
+                    if(code === 429){
+                        document.getElementById("name").innerHTML="频繁请求！";
+                    }else if(code === 403){
+                        document.getElementById("name").innerHTML="erro: 非法请求！";
+                    }else if(code === 500){
+                        document.getElementById("name").innerHTML="erro: 接口请求失败！";
+                    }
+                }
+
+            })
+        });
+    }
+
+
+    //等待网页加载完成后执行
+    $(function () {
+        check_login();  // 检测登录状态
+        get_login_img();  // 获取登录二维码
+        qrc_use_kami(); // 使用扫码卡密
+
+    })
+</script>
+<script type="text/javascript">
+    $('.clockpicker').clockpicker();
+</script>
+
+</body></html>

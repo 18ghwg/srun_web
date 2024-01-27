@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="keywords" content="观后无感,无感阳光跑,自动跑,无需抓包">
+    <meta name="description" content="无感阳光跑,每天自动跑,跑完邮件或微信推送跑步状态">
+    <meta name="author" content="yinq">
+    <title>{% block title %}{% endblock %}-{{ WebConfig.WebName }}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/animate.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    {% block css %}{% endblock %}
+</head>
+<body>
+<!--页面loading-->
+<div id="lyear-preloader" class="loading">
+    <div class="ctn-preloader">
+        <div class="round_spinner">
+            <div class="spinner"></div>
+            <img src="{{ url_for('static', filename='user/images/loading-logo.png') }}" alt="">
+        </div>
+    </div>
+</div>
+
+<!--页面loading end-->
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+        <!--左侧导航-->
+        <aside class="lyear-layout-sidebar">
+
+            <!-- logo -->
+            <div id="logo" class="sidebar-header">
+                <a href="{{ url_for('user.user_index') }}"><h2>用户后台</h2></a>
+            </div>
+            <div class="lyear-layout-sidebar-info lyear-scroll">
+
+                <nav class="sidebar-main">
+
+                    <ul class="nav-drawer">
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.user_index') }}">
+                                <i class="mdi mdi-home-city-outline"></i>
+                                <span>后台首页</span>
+                            </a>
+                        </li>
+                        <li class="nav-item nav-item-has-subnav {% if request.endpoint|mysplit('.')|first == 'user_vip' %}open{% endif %}">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-shield-crown-outline"></i>
+                                <span>Vip管理</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li {% if request.path == url_for('user_vip.user_add_vip') %}class="active"{% endif %}> <a class="mdi mdi-diamond-outline" href="{{ url_for('user_vip.user_add_vip') }}">Vip充值</a> </li>
+                                <li {% if request.path == url_for('user_vip.user_vip_list') %}class="active"{% endif %}> <a class="mdi mdi-format-list-bulleted" href="{{ url_for('user_vip.user_vip_list') }}">Vip账号列表</a> </li>
+                                <li {% if request.path == url_for('user_vip.credit_vip') %}class="active"{% endif %}> <a class="mdi mdi-credit-card-fast" href="{{ url_for('user_vip.credit_vip') }}">积分换Vip</a> </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item nav-item-has-subnav {% if request.endpoint|mysplit('.')|first == 'user_imei' %}open{% endif %}">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-television-guide"></i>
+                                <span>账号管理</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li {% if request.path == url_for('user_imei.user_add_imeicode') %}class="active"{% endif %}> <a class="mdi mdi-weather-sunny" href="{{ url_for('user_imei.user_add_imeicode') }}">添加IMEICode</a> </li>
+                                <li {% if request.path == url_for('user_imei.user_imei_list') %}class="active"{% endif %}> <a class="mdi mdi-format-list-bulleted-square" href="{{ url_for('user_imei.user_imei_list') }}">IMEICode列表</a> </li>
+                            </ul>
+                        </li>
+
+                        {% if UserLib == "管理员" %}
+                            <li class="nav-item nav-item-has-subnav {% if request.endpoint == 'user.user_list' %}open{% endif %}">
+                                <a href="javascript:void(0)">
+                                    <i class="mdi mdi-nature-people"></i>
+                                    <span>用户管理</span>
+                                </a>
+                                <ul class="nav nav-subnav">
+                                    <li {% if request.path == url_for('user.user_list') %}class="active"{% endif %}> <a class="mdi mdi-format-list-bulleted-square" href="{{ url_for('user.user_list') }}">用户列表</a> </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-item nav-item-has-subnav {% if request.endpoint|mysplit('.')|first == 'user_kami' %}open{% endif %}">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-shimmer"></i>
+                                <span>卡密管理</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li {% if request.path == url_for('user_kami.use_kami_list') %}class="active"{% endif %}> <a class="mdi mdi-format-list-bulleted" href="{{ url_for('user_kami.use_kami_list') }}">{% if UserLib == "管理员" %}卡密列表{% else %}已使用卡密{% endif %}</a> </li>
+                                {% if UserLib == "管理员" %}
+                                    <li {% if request.path == url_for('user_kami.add_kami') %}class="active"{% endif %}> <a class="mdi mdi-gamepad-round-outline" href="{{ url_for('user_kami.add_kami') }}">卡密生成</a> </li>
+                                {% endif %}
+                                {% if UserLib != "管理员" %}
+                                    <li {% if request.path == url_for('user_kami.nuse_kami_list') %}class="active"{% endif %}> <a class="mdi mdi-format-list-bulleted" href="{{ url_for('user_kami.nuse_kami_list') }}">未使用卡密</a> </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <li class="nav-item nav-item-has-subnav {% if request.endpoint == 'user.sub_wx_msg' or request.endpoint == 'user.system_log' or request.endpoint == 'user_work.workorder_list' %}open{% endif %}">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-send"></i>
+                                <span>通知管理</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li {% if request.path == url_for('user.sub_wx_msg') %}class="active"{% endif %}> <a class="mdi mdi-wechat" href="{{ url_for('user.sub_wx_msg') }}">微信订阅</a> </li>
+                                <li {% if request.path == url_for('user.system_log') %}class="active"{% endif %}> <a class="mdi mdi-math-log" href="{{ url_for('user.system_log') }}">系统日志</a> </li>
+                                <li {% if request.path == url_for('user_work.workorder_list') %}class="active"{% endif %}> <a class="mdi mdi-email-fast-outline" href="{{ url_for('user_work.workorder_list') }}">工单列表</a> </li>
+                            </ul>
+                        </li>
+
+                        {% if UserLib == "管理员" %}
+                            <li class="nav-item nav-item-has-subnav {% if request.endpoint|mysplit('.')|first == 'web' %}open{% endif %}">
+                                <a href="javascript:void(0)">
+                                    <i class="mdi mdi-web-minus"></i>
+                                    <span>网站配置</span>
+                                </a>
+                                <ul class="nav nav-subnav">
+                                    <li {% if request.path == url_for('web.web_info_set') %}class="active"{% endif %}> <a class="mdi mdi-web" href="{{ url_for('web.web_info_set') }}">基本信息</a> </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-item nav-item-has-subnav {% if request.endpoint|mysplit('.')|first == 'agent' %}open{% endif %}">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-medal-outline"></i>
+                                <span>{% if UserLib == "代理" or UserLib == "管理员" %}代理配置{% else %}开通代理{% endif %}</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                {% if UserLib == "代理" or UserLib == "管理员" %}
+                                    <li {% if request.path == url_for('agent.set_web_info') %}class="active"{% endif %}> <a class="mdi mdi-web" href="{{ url_for('agent.set_web_info') }}">代理网站配置</a> </li>
+                                    <li {% if request.path == url_for('agent.agent_user_list') %}class="active"{% endif %}> <a class="mdi mdi-web" href="{{ url_for('agent.agent_user_list') }}">代理用户列表</a> </li>
+                                    <li {% if request.path == url_for('agent.add_agent') %}class="active"{% endif %}> <a class="mdi mdi-medal-outline" href="{{ url_for('agent.add_agent') }}">添加代理</a> </li>
+                                {% else %}
+                                    <li > <a class="mdi mdi-medal-outline" href="https://www.blog18.cn/archives/1909/">代理介绍</a> </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <li class="nav-item nav-item-has-subnav">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-counter"></i>
+                                <span>更多</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li > <a class="mdi mdi-link-box" href="https://www.blog18.cn/archives/1765/">抓包教程</a> </li>
+                                <li > <a class="mdi mdi-android" href="{{ WebConfig.AndroidAppDownloadUrl }}">APP下载</a> </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item nav-item-has-subnav">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-link"></i>
+                                <span>友情链接</span>
+                            </a>
+                            <ul class="nav nav-subnav">
+                                <li > <a class="mdi mdi-link-box" href="https://www.eya46.com/">eya46博客</a> </li>
+                                <li > <a class="mdi mdi-link-box" href="https://www.blog18.cn">观后无感博客</a> </li>
+                                <li > <a class="mdi mdi-link-box" href="https://yqing.blog18.cn">学校查电费</a> </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <p class="copyright">
+                        <span>Copyright &copy; 2022. </span>
+                        <a target="_blank" href="https://www.blog18.cn">观后无感</a>
+                        <span> All rights reserved.</span>
+                    </p>
+                </div>
+            </div>
+
+        </aside>
+        <!--End 左侧导航-->
+
+        <!--头部信息-->
+        <header class="lyear-layout-header">
+
+            <nav class="navbar">
+
+                <div class="navbar-left">
+                    <div class="lyear-aside-toggler">
+                        <span class="lyear-toggler-bar"></span>
+                        <span class="lyear-toggler-bar"></span>
+                        <span class="lyear-toggler-bar"></span>
+                    </div>
+                </div>
+
+                <ul class="navbar-right d-flex align-items-center">
+                    <!--顶部消息部分-->
+                    <li class="dropdown dropdown-notice">
+            <span data-bs-toggle="dropdown" class="position-relative icon-item">
+              <i class="mdi mdi-bell-outline fs-5"></i>
+                <a id="msg_ico"></a>
+            </span>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="lyear-notifications">
+
+                                <div class="lyear-notifications-title d-flex justify-content-between" data-stopPropagation="true">
+                                    <span>你有 <span id="msgnum"></span> 条未读消息</span>
+                                    {#<a href="#!">查看全部</a>#}
+                                </div>
+                                <div class="lyear-notifications-info lyear-scroll">
+                                    <span id="msg_list"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!--End 顶部消息部分-->
+                    <!--切换主题配色-->
+                    <li class="dropdown dropdown-skin">
+		    <span data-bs-toggle="dropdown" class="icon-item">
+              <i class="mdi mdi-palette fs-5"></i>
+            </span>
+                        <ul class="dropdown-menu dropdown-menu-end" data-stopPropagation="true">
+                            <li class="lyear-skin-title"><p>主题</p></li>
+                            <li class="lyear-skin-li clearfix">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_1" value="default" checked="checked">
+                                    <label class="form-check-label" for="site_theme_1"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_2" value="translucent-green">
+                                    <label class="form-check-label" for="site_theme_2"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_3" value="translucent-blue">
+                                    <label class="form-check-label" for="site_theme_3"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_4" value="translucent-yellow">
+                                    <label class="form-check-label" for="site_theme_4"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_5" value="translucent-red">
+                                    <label class="form-check-label" for="site_theme_5"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_6" value="translucent-pink">
+                                    <label class="form-check-label" for="site_theme_6"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_7" value="translucent-cyan">
+                                    <label class="form-check-label" for="site_theme_7"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="site_theme" id="site_theme_8" value="dark">
+                                    <label class="form-check-label" for="site_theme_8"></label>
+                                </div>
+                            </li>
+                            <li class="lyear-skin-title"><p>LOGO</p></li>
+                            <li class="lyear-skin-li clearfix">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_1" value="default" checked="checked">
+                                    <label class="form-check-label" for="logo_bg_1"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_2" value="color_2">
+                                    <label class="form-check-label" for="logo_bg_2"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_3" value="color_3">
+                                    <label class="form-check-label" for="logo_bg_3"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_4" value="color_4">
+                                    <label class="form-check-label" for="logo_bg_4"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_5" value="color_5">
+                                    <label class="form-check-label" for="logo_bg_5"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_6" value="color_6">
+                                    <label class="form-check-label" for="logo_bg_6"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_7" value="color_7">
+                                    <label class="form-check-label" for="logo_bg_7"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="logo_bg" id="logo_bg_8" value="color_8">
+                                    <label class="form-check-label" for="logo_bg_8"></label>
+                                </div>
+                            </li>
+                            <li class="lyear-skin-title"><p>头部</p></li>
+                            <li class="lyear-skin-li clearfix">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_1" value="default" checked="checked">
+                                    <label class="form-check-label" for="header_bg_1"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_2" value="color_2">
+                                    <label class="form-check-label" for="header_bg_2"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_3" value="color_3">
+                                    <label class="form-check-label" for="header_bg_3"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_4" value="color_4">
+                                    <label class="form-check-label" for="header_bg_4"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_5" value="color_5">
+                                    <label class="form-check-label" for="header_bg_5"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_6" value="color_6">
+                                    <label class="form-check-label" for="header_bg_6"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_7" value="color_7">
+                                    <label class="form-check-label" for="header_bg_7"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="header_bg" id="header_bg_8" value="color_8">
+                                    <label class="form-check-label" for="header_bg_8"></label>
+                                </div>
+                            </li>
+                            <li class="lyear-skin-title"><p>侧边栏</p></li>
+                            <li class="lyear-skin-li clearfix">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_1" value="default" checked="checked">
+                                    <label class="form-check-label" for="sidebar_bg_1"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_2" value="color_2">
+                                    <label class="form-check-label" for="sidebar_bg_2"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_3" value="color_3">
+                                    <label class="form-check-label" for="sidebar_bg_3"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_4" value="color_4">
+                                    <label class="form-check-label" for="sidebar_bg_4"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_5" value="color_5">
+                                    <label class="form-check-label" for="sidebar_bg_5"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_6" value="color_6">
+                                    <label class="form-check-label" for="sidebar_bg_6"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_7" value="color_7">
+                                    <label class="form-check-label" for="sidebar_bg_7"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sidebar_bg" id="sidebar_bg_8" value="color_8">
+                                    <label class="form-check-label" for="sidebar_bg_8"></label>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--End 切换主题配色-->
+                    <!--用户签到-->
+                    <li class="dropdown dropdown-notice">
+            <span class="position-relative icon-item">
+              <i class="mdi mdi-check-bold fs-5"  onclick="user_check()"></i>
+              <a id="check_tips"></a>
+            </span>
+                    </li>
+                    <!--End 用户签到-->
+
+                    <!--个人头像内容-->
+                    <li class="dropdown">
+                        <a href="javascript:void(0)" data-bs-toggle="dropdown" class="dropdown-toggle">
+                            <img class="avatar-md rounded-circle" src="{{ url_for('user.get_user_ico') }}" alt="{{ username }}" />
+                            <span style="margin-left: 10px;">{{ username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('user.user_info') }}"
+                                   href="javascript:void(0)">
+                                    <i class="mdi mdi-account"></i>
+                                    <span>个人信息</span>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('user.user_logout') }}">
+                                    <i class="mdi mdi-logout-variant"></i>
+                                    <span>退出登录</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--End 个人头像内容-->
+                </ul>
+
+            </nav>
+
+        </header>
+        <!--End 头部信息-->
+        <!--页面主要内容-->
+        {% block content %}{% endblock %}
+        <!--End 页面主要内容-->
+    </div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/popper.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/perfect-scrollbar.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery.cookie.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/main.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+{#获取用户未读消息#}
+<script type="text/javascript">
+    $.ajaxSetup({
+        error: function (jqXHR, textStatus, errorThrown) {
+            notify("请求失败", 'danger', 3000);
+        }
+    });
+
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+
+    var msgloda = false;
+    function unmsgs() {
+        $.ajax({
+            type: 'post',
+            url: '{{ url_for("user.get_unred_msg") }}',
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                msgloda = false;
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            },
+            success: function(res) {
+                console.log(res);
+                // 处理信息
+                document.getElementById("msgnum").innerHTML = res.msgnum;
+                if (res.msgnum !== 0){
+                    document.getElementById('msg_ico').style.display = "block";  // 显示消息数图标
+                    document.getElementById('msg_ico').innerHTML = '<span class="position-absolute translate-middle badge bg-danger"><a id="msgnum_ico"></a> </span>'
+                    document.getElementById("msgnum_ico").innerHTML = res.msgnum;
+                }else {
+                    document.getElementById('msg_ico').style.display="none";  // 隐藏消息数图标
+                }
+
+                var html_content = '';  // 消息html代码
+                for(var str in res.msgs){
+                    html_content += '<a href="'+ res.msgs[str].url +'" class="dropdown-item" style="color: #6f42c1" title="' + res.msgs[str].title +' ">' + (parseInt(str)+1) + '.' + res.msgs[str].content + '</a>'
+                }
+                document.getElementById('msg_list').innerHTML = html_content;
+            },
+            complete: function() {
+                msgloda = true;
+            },
+            error: function() {
+                console.log('请求失败~');
+            }
+        });
+    }
+    unmsgs();
+    setInterval(function() {
+        msgloda && unmsgs();
+    }, 5000);
+
+</script>
+{#获取用户未读消息END#}
+{#用户签到#}
+<script type="text/javascript">
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+    function user_check() {
+        $.ajax({
+            type: 'post',
+            url: '{{ url_for("user.user_check") }}',
+            dataType: 'json',
+          beforeSend: function(xhr) {
+                msgloda = false;
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            },
+            success: function(res) {
+                {#console.log(res);#}
+                notify(res.msg, 'success', 3000);
+            },
+            complete: function() {
+                msgloda = true;
+            },
+            error: function() {
+                console.log('请求失败~');
+            }
+        });
+    }
+</script>
+{#用户签到END#}
+{#获取用户签到状态#}
+<script type="text/javascript">
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+    var checkloda = false;
+    function check_state() {
+        $.ajax({
+            type: 'post',
+            url: '{{ url_for("user.get_user_check_state") }}',
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                checkloda = false;
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            },
+            success: function(res) {
+                console.log(res);
+                // 处理信息
+                if (res.check_state){
+                    document.getElementById('check_tips').style.display = 'none';  // 影藏图标
+                }else{
+                    document.getElementById('check_tips').style.display = 'block'; // 显示图标
+                    document.getElementById('check_tips').innerHTML = '<span class="position-absolute translate-middle badge bg-danger">!</span>'
+                }
+            },
+            complete: function() {
+                checkloda = true;
+            },
+            error: function() {
+                console.log('请求失败~');
+            }
+        });
+    }
+    check_state();
+    setInterval(function() {
+        checkloda && check_state();
+    }, 5000);
+</script>
+{#获取用户签到状态END#}
+{% block js %}{% endblock %}
+</body>
+</html>

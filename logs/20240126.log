@@ -1,0 +1,3 @@
+2024-01-26 20:47:35,198 - D:\Desktop\阳光体育\module\send.py[line:100] - INFO: access_token已失效，正在重新获取...
+2024-01-26 20:47:35,817 - D:\Desktop\阳光体育\module\mysql\ModuleClass\SendClass.py[line:28] - INFO: access token已更新！
+2024-01-26 20:47:36,265 - D:\Desktop\阳光体育\module\send.py[line:139] - INFO: 微信应用通知发送失败！

@@ -1,0 +1,437 @@
+{% extends 'user/header.html' %}
+{% block title %}用户后台{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+{% endblock %}
+
+{% block content %}
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                  <span class="avatar-md rounded-circle bg-white bg-opacity-25 avatar-box">
+                    <i class="mdi mdi-shoe-cleat fs-4"></i>
+                  </span>
+                                <span class="fs-4" id="run_today">{{ RunToday }} 个</span>
+                            </div>
+                            <div class="text-end">今日跑步</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                  <span class="avatar-md rounded-circle bg-white bg-opacity-25 avatar-box">
+                    <i class="mdi mdi-odnoklassniki fs-4"></i>
+                  </span>
+                                <span class="fs-4" id="imei_num">{{ IMEICodeNum }} 个</span>
+                            </div>
+                            <div class="text-end">用户总数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                  <span class="avatar-md rounded-circle bg-white bg-opacity-25 avatar-box">
+                    <i class="mdi mdi-ghost fs-4"></i>
+                  </span>
+                                <span class="fs-4" id="valid_num">{{ ValidNum }} 个</span>
+                            </div>
+                            <div class="text-end">有效账号</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-purple text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                  <span class="avatar-md rounded-circle bg-white bg-opacity-25 avatar-box">
+                    <i class="mdi mdi-ghost-off fs-4"></i>
+                  </span>
+                                <span class="fs-4" id="invalid_num">{{ InValidNum }} 个</span>
+                            </div>
+                            <div class="text-end">无效账号</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">每日账号</div>
+                        </div>
+                        <div class="card-body">
+                            <canvas class="week_imei"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">每日VIP</div>
+                        </div>
+                        <div class="card-body">
+                            <canvas class="week_vip"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header">
+                            <div class="card-title">账号列表</div>
+                        </header>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+{% block js %}
+<!--引入chart插件js-->
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/chart.min.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function(e) {
+        var $dashChartBarsCnt = jQuery('.week_imei')[0].getContext('2d'),
+        $dashChartLinesCnt = jQuery('.week_vip')[0].getContext('2d');
+
+        var $dashChartBarsData = {
+            labels: {% autoescape false %}{{ Weeks }}{{ will_not_be_escaped }}{% endautoescape %},
+            datasets: [{
+                label: 'imei新增',
+                borderWidth: 1,
+                borderColor: 'rgba(0, 0, 0, 0)',
+                backgroundColor: 'rgba(0, 123, 255,0.5)',
+                hoverBackgroundColor: "rgba(0, 123, 255, 0.7)",
+                hoverBorderColor: "rgba(0, 0, 0, 0)",
+                data: {% autoescape false %}{{ WeekIMEICode }}{{ will_not_be_escaped }}{% endautoescape %}
+            }]
+        };
+
+        new Chart($dashChartBarsCnt, {
+            type: 'bar',
+            data: $dashChartBarsData
+        });
+
+        var $dashChartLinesData = {
+            labels: {% autoescape false %}{{ Weeks }}{{ will_not_be_escaped }}{% endautoescape %},
+            datasets: [{
+                label: 'vip新增',
+                data: {% autoescape false %}{{ WeekVip }}{{ will_not_be_escaped }}{% endautoescape %},
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.175)',
+                borderWidth: 1,
+                fill: false,
+                lineTension: 0.5
+            }]
+        };
+
+        var myLineChart = new Chart($dashChartLinesCnt, {
+            type: 'line',
+            data: $dashChartLinesData,
+        });
+
+    });
+</script>
+
+<!--表格插件js-->
+<script src="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.js') }}"></script>
+<script src="{{ url_for('static', filename='user/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js') }}"></script>
+<script>
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            }
+        }
+    });
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+    /**
+     * 分页相关的配置
+     **/
+    const pagination = {
+        // 分页方式：[client] 客户端分页，[server] 服务端分页
+        sidePagination: "server",
+        search: true, //******开启搜索框****//
+        searchOnEnterKey:false, //******回车后执行搜索****//
+        trimOnSearch: true, //******自动去除关键词两边空格****//
+        // 初始化加载第一页，默认第一页
+        pageNumber: 1,
+        // 每页的记录行数
+        pageSize: 10,
+        // 可供选择的每页的行数 - (亲测大于1000存在渲染问题)
+        pageList: [5, 10, 25, 50, 100],
+        // 在上百页的情况下体验较好 - 能够显示首尾页
+        paginationLoop: true,
+        // 展示首尾页的最小页数
+        paginationPagesBySide: 2
+    };
+
+    /**
+     * 按钮相关配置
+     **/
+    const button = {
+        // 按钮的类
+        buttonsClass: 'default',
+        // 类名前缀
+        buttonsPrefix: 'btn'
+    }
+
+    /**
+     * 图标相关配置
+     **/
+    const icon = {
+        // 图标前缀
+        iconsPrefix: 'mdi',
+        // 图标大小
+        iconSize: 'mini',
+        // 图标的设置
+        icons: {
+            paginationSwitchDown: 'mdi-door-closed',
+            paginationSwitchUp: 'mdi-door-open',
+            refresh: 'mdi-refresh',
+            toggleOff: 'mdi-toggle-switch-off',
+            toggleOn: 'mdi-toggle-switch',
+            columns: 'mdi-table-column-remove',
+            detailOpen: 'mdi-plus',
+            detailClose: 'mdi-minus',
+            fullscreen: 'mdi-monitor-screenshot',
+            search: 'mdi-table-search',
+            clearSearch: 'mdi-trash-can-outline'
+        }
+    };
+
+    /**
+     * 表格相关的配置
+     **/
+    const table = {
+        classes: 'table table-bordered table-hover table-striped lyear-table',
+        // 请求地址
+        url: '{{ url_for("user_imei.user_imei_list") }}',
+        // 唯一ID字段
+        uniqueId: 'id',
+        // 每行的唯一标识字段
+        idField: 'id',
+        // 是否启用点击选中行
+        clickToSelect: true,
+        // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+        // showToggle: true,
+        // 请求得到的数据类型
+        dataType: 'json',
+        // 请求方法
+        method: 'post',
+        // 工具按钮容器
+        toolbar: '#toolbar',
+        // 是否分页
+        pagination: true,
+        // 是否显示所有的列
+        showColumns: true,
+        // 是否显示刷新按钮
+        showRefresh: true,
+        // 显示图标
+        showButtonIcons: true,
+        // 显示文本
+        showButtonText: false,
+        // 显示全屏
+        showFullscreen: true,
+        // 开关控制分页
+        showPaginationSwitch: true,
+        // 总数字段
+        totalField: 'total',
+        // 当字段为 undefined 显示
+        undefinedText: '-',
+        // 排序方式
+        sortOrder: "asc",
+        ...icon,
+        ...pagination,
+        ...button
+    };
+
+    /**
+     * 用于演示的列信息
+     **/
+    const columns = [{
+        field: 'id',
+        title: '编号',
+        // 使用[align]，[halign]和[valign]选项来设置列和它们的标题的对齐方式。
+        // h表示横向，v标识垂直
+        align: 'center',
+        // 是否作为排序列
+        sortable: true,
+        // 当列名称与实际名称不一致时可用
+        sortName: 'sortId',
+        switchable: false,
+        // 列的宽度
+        width: 8,
+        // 宽度单位
+        widthUnit: 'rem'
+    }, {
+        field: 'Name',
+        align: 'center',
+        title: '姓名',
+        titleTooltip: '姓名'
+    }, {
+        field: 'School',
+        align: 'center',
+        title: '学校',
+        titleTooltip: '学校'
+    }, {
+        field: 'UserId',
+        align: 'center',
+        title: 'userid',
+        titleTooltip: 'userid',
+        visible: false,
+    }, {
+        field: 'RunTime',
+        // 是否可视(默认 - true)
+        {#visible: false,#}
+        align: 'center',
+        title: '跑步时间',
+        titleTooltip: '你设置的跑步时间'
+    }, {
+        field: 'VipedDate',
+        align: 'center',
+        title: 'vip到期时间',
+        titleTooltip: 'vip到期时间'
+    }, {
+        field: 'VipRunNum',
+        align: 'center',
+        title: '剩余次数',
+        titleTooltip: '次数卡密充值的跑步次数'
+    }, {
+        field: 'RunDate',
+        align: 'center',
+        title: '最后跑步',
+        titleTooltip: '最后跑步的日期  '
+    },
+        {% if UserLib == "管理员" %}
+            {
+                field: 'User',
+                align: 'center',
+                title: '所属',
+                titleTooltip: '所归属的账号'
+            },
+        {% endif %}
+        {
+            field: 'VipLib',
+            title: 'vip类型',
+            formatter: function(value, row, index){
+                var valur = "";
+                if (row.VipLib === "扫码"){
+                    value = '<span class="badge bg-info">扫码</span>'
+                }else if (row.VipLib === "抓包"){
+                    value = '<span class="badge bg-danger">抓包</span>'
+                }
+                else{
+                    value = '<span class="badge bg-secondary">未知</span>'
+                }
+                return value
+            }
+        }, {
+            field: 'State',
+            title: '状态',
+            formatter:function(value, row, index){
+                var value="";
+                if (row.State == '0') {
+                    value = '<span class="badge bg-danger">无效</span>';
+                } else if(row.State == '1') {
+                    value = '<span class="badge bg-success">有效</span>';
+                } else {
+                    value = '<span class="badge bg-secondary">未知</span>' ;
+                }
+                return value;
+            }
+        }];
+
+    $('table').bootstrapTable({
+        ...table,
+        // 自定义的查询参数
+        queryParams: function (params) {
+            return {
+                // 搜索的数值
+                search: params.search,
+                // 每页数据量
+                limit: params.limit,
+                // sql语句起始索引
+                offset: params.offset,
+                page: (params.offset / params.limit) + 1,
+                // 排序的列名
+                sort: params.sort,
+                // 排序方式 'asc' 'desc'
+                sortOrder: params.order
+            };
+        },
+        columns,
+        onLoadSuccess: function(data){
+            $("[data-bs-toggle='tooltip']").tooltip();
+        }
+    });
+
+    var isLoaded = false;
+    function reqs() {
+        $.ajax({
+            type: 'post',
+            url: '{{ url_for("user.ajax_info") }}',
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                isLoaded = false;
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            },
+            success: function(res) {
+                {#console.log(res);#}
+                // 处理信息
+                document.getElementById("run_today").innerHTML = res.RunToday + " 个";
+                document.getElementById("imei_num").innerHTML = res.IMEICodeNum + " 个";
+                document.getElementById("valid_num").innerHTML = res.ValidNum + " 个";
+                document.getElementById("invalid_num").innerHTML = res.InValidNum + " 个";
+            },
+            complete: function() {
+                isLoaded = true;
+            },
+            error: function() {
+                console.log('请求失败~');
+            }
+        });
+    }
+    reqs();
+    setInterval(function() {
+        isLoaded && reqs();
+    }, 10000);
+
+</script>
+
+{% endblock %}
+
+
+

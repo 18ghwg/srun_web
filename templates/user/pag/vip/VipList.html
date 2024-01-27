@@ -1,0 +1,294 @@
+{% extends "user/header.html" %}
+{% block  title%}Vip列表{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header">
+                            <div class="card-title">账号下Vip</div>
+                        </header>
+
+                        <div class="card-body">
+                            <div class="card-search mb-2-5">
+                            </div>
+                            <div id="toolbar" class="toolbar-btn-action">
+                                <a href="{{ url_for('user_vip.user_add_vip') }}" class="btn btn-primary"><span class="mdi mdi-plus">添加Vip</span></a>
+                            </div>
+                            <table id="table"></table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--表格插件js-->
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+
+        /**
+         * 分页相关的配置
+         **/
+        const pagination = {
+            // 分页方式：[client] 客户端分页，[server] 服务端分页
+            sidePagination: "server",
+            search: true, //******开启搜索框****//
+            searchOnEnterKey:false, //******回车后执行搜索****//
+            trimOnSearch: true, //******自动去除关键词两边空格****//
+            // 初始化加载第一页，默认第一页
+            pageNumber: 1,
+            // 每页的记录行数
+            pageSize: 10,
+            // 可供选择的每页的行数 - (亲测大于1000存在渲染问题)
+            pageList: [5, 10, 25, 50, 100],
+            // 在上百页的情况下体验较好 - 能够显示首尾页
+            paginationLoop: true,
+            // 展示首尾页的最小页数
+            paginationPagesBySide: 2
+        };
+
+        /**
+         * 按钮相关配置
+         **/
+        const button = {
+            // 按钮的类
+            buttonsClass: 'default',
+            // 类名前缀
+            buttonsPrefix: 'btn'
+        }
+
+        /**
+         * 图标相关配置
+         **/
+        const icon = {
+            // 图标前缀
+            iconsPrefix: 'mdi',
+            // 图标大小
+            iconSize: 'mini',
+            // 图标的设置
+            icons: {
+                paginationSwitchDown: 'mdi-door-closed',
+                paginationSwitchUp: 'mdi-door-open',
+                refresh: 'mdi-refresh',
+                toggleOff: 'mdi-toggle-switch-off',
+                toggleOn: 'mdi-toggle-switch',
+                columns: 'mdi-table-column-remove',
+                detailOpen: 'mdi-plus',
+                detailClose: 'mdi-minus',
+                fullscreen: 'mdi-monitor-screenshot',
+                search: 'mdi-table-search',
+                clearSearch: 'mdi-trash-can-outline'
+            }
+        };
+
+        /**
+         * 表格相关的配置
+         **/
+        const table = {
+            classes: 'table table-bordered table-hover table-striped lyear-table',
+            // 请求地址
+            url: '{{ url_for("user_vip.user_vip_list") }}',
+            // 唯一ID字段
+            uniqueId: 'id',
+            // 每行的唯一标识字段
+            idField: 'id',
+            // 是否启用点击选中行
+            clickToSelect: true,
+            // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+            // showToggle: true,
+            // 请求得到的数据类型
+            dataType: 'json',
+            // 请求方法
+            method: 'post',
+            // 工具按钮容器
+            toolbar: '#toolbar',
+            // 是否分页
+            pagination: true,
+            // 是否显示所有的列
+            showColumns: true,
+            // 是否显示刷新按钮
+            showRefresh: true,
+            // 显示图标
+            showButtonIcons: true,
+            // 显示文本
+            showButtonText: false,
+            // 显示全屏
+            showFullscreen: true,
+            // 开关控制分页
+            showPaginationSwitch: true,
+            // 总数字段
+            totalField: 'total',
+            // 当字段为 undefined 显示
+            undefinedText: '-',
+            // 排序方式
+            sortOrder: "asc",
+            ...icon,
+            ...pagination,
+            ...button
+        };
+
+        /**
+         * 用于演示的列信息
+         **/
+        const columns = [{
+            field: 'id',
+            title: '编号',
+            // 使用[align]，[halign]和[valign]选项来设置列和它们的标题的对齐方式。
+            // h表示横向，v标识垂直
+            align: 'center',
+            // 是否作为排序列
+            sortable: true,
+            // 当列名称与实际名称不一致时可用
+            sortName: 'sortId',
+            switchable: false,
+            // 列的宽度
+            width: 8,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'Name',
+            align: 'center',
+            title: '姓名',
+            titleTooltip: '姓名'
+        }, {
+            field: 'School',
+            align: 'center',
+            title: '学校',
+            titleTooltip: '学校'
+        }, {
+            field: 'UserId',
+            align: 'center',
+            title: 'userid',
+            titleTooltip: 'userid',
+            visible: false,
+        }, {
+            field: 'VipedDate',
+            align: 'center',
+            title: 'vip到期时间',
+            titleTooltip: 'vip到期时间'
+        }, {
+            field: 'VipRunNum',
+            align: 'center',
+            title: '剩余次数',
+            titleTooltip: '次数卡密充值的跑步次数'
+        }, {
+            field: 'VipLib',
+            title: 'vip类型',
+            formatter: function(value, row, index){
+                var valur = "";
+                if (row.VipLib === "扫码"){
+                    value = '<span class="badge bg-info">扫码</span>'
+                }else if (row.VipLib === "抓包"){
+                    value = '<span class="badge bg-danger">抓包</span>'
+                }
+                else{
+                    value = '<span class="badge bg-secondary">未知</span>'
+                }
+                return value
+            }
+        }, {
+            field: 'JoinDate',
+            align: 'center',
+            title: '加入时间',
+            titleTooltip: 'Vip加入的时间'
+        },
+            {% if UserLib == "管理员" %}
+                {
+                    field: 'operate',
+                    title: '操作',
+                    formatter: btnGroup,  // 自定义方法
+                    events: {
+                        'click .edit-btn': function (event, value, row, index) {
+                            event.stopPropagation();
+                            editVip(row);
+                        }
+
+                }
+                }
+            {% endif %}
+        ];
+
+        // 自定义操作按钮
+        function btnGroup () {
+            {% if UserLib == "管理员" %}
+                let html = '<a href="#!" class="btn btn-sm btn-default me-1 edit-btn" title="编辑" data-bs-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>'
+            {% else %}
+                let html = ''
+            {% endif %}
+
+
+            return html;
+        }
+        {% if UserLib == "管理员" %}
+            // 操作方法 - 编辑
+            function editVip(row) {
+                window.location.href = "{{ url_for('user_vip.set_vip_info') }}?UserId=" + row.UserId
+            }
+        {% endif %}
+
+        $('table').bootstrapTable({
+            ...table,
+            // 自定义的查询参数
+            queryParams: function (params) {
+                return {
+                    // 搜索的数值
+                    search: params.search,
+                    // 每页数据量
+                    limit: params.limit,
+                    // sql语句起始索引
+                    offset: params.offset,
+                    page: (params.offset / params.limit) + 1,
+                    // 排序的列名
+                    sort: params.sort,
+                    // 排序方式 'asc' 'desc'
+                    sortOrder: params.order
+                };
+            },
+            columns,
+            onLoadSuccess: function(data){
+                $("[data-bs-toggle='tooltip']").tooltip();
+            }
+        });
+
+    </script>
+    {#    {% endif %}#}
+{% endblock %}

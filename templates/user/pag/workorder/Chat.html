@@ -1,0 +1,203 @@
+
+
+{% extends "user/header.html" %}
+{% block  title%}工单聊天{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='chat/css/index.css') }}"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='chat/img/ico.png') }}">
+    <script src="{{ url_for('static', filename='chat/js/jquery-1.11.1.min.js') }}" type="text/javascript" charset="utf-8"></script>
+
+
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+        <div id="box">
+            <div class="b-head">
+                <img  class="h-img" alt="" src="{{ url_for('static', filename='chat/img/logo.png') }}" width=80; height=60;/>
+                <span class="h_span">工单详情</span>
+            </div>
+            <div class="b-body">
+                <div class="rotWord">
+                    <span></span>
+                    <p>正在请求消息中...</p>
+                </div>
+            </div>
+            <div class="b-footer">
+                <input type="text" name="text" id="f-left" />
+                <div id="btn">发送</div>
+            </div>
+        </div>
+    </main>
+
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+
+        // 获取聊天消息并刷新界面
+        function getChatMessages() {
+            const apiUrl = '{{ url_for("user_work.chat_get_msg") }}';  // 替换为实际的接口地址
+            var content_type = '';
+            axios.post(apiUrl, {"workorder_id": "{{ WorkorderID }}"})
+                .then(response => {
+                    const data = response.data;
+                    var msg = "";
+                    var icon = "";
+                    $(".b-body").empty()
+                    if (data.code === 200) {
+
+                        data.data.forEach(message => {
+                            icon = message.icon;
+                            if (message.content) {  {#如果是工单消息#}
+                                msg = message.content;
+                                if(message.user === "{{ username }}"){  {#我是发工单的用户#}
+                                    content_type = "mWord"  {#我在追问工单#}
+
+                                }else{
+                                    content_type = "rotWord"  {#我在回复工单#}
+
+                                }
+
+                            } else if (message.notes) {  {#如果是回复消息#}
+                                msg = message.notes;
+                                if(message.user === "{{ username }}"){  {#我在回复用户工单#}
+                                    content_type = "mWord"
+
+                                }else{  {#代理在回复我的工单消息#}
+                                    content_type = "rotWord"
+
+                                }
+
+                            }
+
+
+                            {#显示工单消息#}
+                            $(".b-body").append("<div class="+ content_type +"><span></span><p id='member'>" + msg + "</p></div>");
+                              {#显示工单头像#}
+                            $("."+content_type+" span").css("background", "url("+icon+")");
+                        });
+                    }else{
+                        notify("未获取到工单数据", "danger")
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+
+        // 定时刷新聊天消息
+        setInterval(() => {
+            getChatMessages();
+        }, 5000);
+
+    </script>
+
+    <script>
+
+        var text = $("#f-left");
+        text.focus();
+        function action()
+        {
+            if(text.val()==null||text.val()=="")
+            {
+                text.focus();
+                return;  // 结束请求
+            }
+
+            $(".b-body").append("<div class='mWord'><span></span><p>" + text.val() + "</p></div>");
+            $(".b-body").scrollTop(10000000);
+            $(".mWord span").css("background", "url({{ url_for('user.get_user_ico') }})");
+
+            var args= {
+                type : "post",
+                url:"{{ url_for('user_work.chat_send_msg') }}",
+                data : {"workorder_id" : "{{WorkorderID}}", "msg" : text.val()},
+                success : function(redata)
+                {
+                    var my_data = $.parseJSON(redata)
+                    console.log(my_data);
+                    if(redata.code === 200){
+                        notify("已发送")
+                    }
+                },
+                error : function(redata){
+                    notify(redata.msg, "danger");
+                }
+            }
+
+            ajax(args);
+            text.val("");
+            text.focus();
+
+        };
+
+        $("#btn").click(function()
+        {
+            action();
+        });
+        $(document).keydown(function(event)
+        {
+            if(event.keyCode==13)
+            {
+                action();
+            }
+        });
+
+        function ajax(mJson)
+        {
+            var type=mJson.type||'post';
+            var url=mJson.url;
+            var data=mJson.data;
+            var success=mJson.success;
+            var error=mJson.error;
+            var dataDict={};
+            console.log(mJson);
+
+            if(data)
+            {
+                var arr = Object.keys(data);
+
+                for (var key in data)
+                {
+                    dataDict[key]=data[key];
+
+                }
+                console.log(dataDict)
+
+            }
+
+            {#console.log(url);#}
+
+            var xhr=new XMLHttpRequest();
+            xhr.open(type,url,true);
+            xhr.setRequestHeader('content-type' , 'application/x-www-form-urlencoded');
+            xhr.send(JSON.stringify(dataDict));
+
+            xhr.onreadystatechange=function()
+            {
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                        success&&success(xhr.responseText);
+                    }
+                    else
+                    {
+                        error&&error(xhr.status);
+                    }
+                }
+            }
+        }
+
+    </script>
+
+{% endblock %}

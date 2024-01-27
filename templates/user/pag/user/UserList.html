@@ -1,0 +1,400 @@
+{% extends "user/header.html" %}
+{% block  title%}用户列表{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header">
+                            <div class="card-title">账号列表</div>
+                        </header>
+                        <div class="card-body">
+                            <div id="toolbar" class="toolbar-btn-action">
+                                <button id="btn_delete" type="button" class="btn btn-danger">
+                                    <span class="mdi mdi-window-close" aria-hidden="true"></span>删除
+                                </button>
+                            </div>
+                            <table id="table"></table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--表格插件js-->
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        /**
+         * 分页相关的配置
+         **/
+        const pagination = {
+            // 分页方式：[client] 客户端分页，[server] 服务端分页
+            sidePagination: "server",
+            search: true, //******开启搜索框****//
+            searchOnEnterKey:false, //******回车后执行搜索****//
+            trimOnSearch: true, //******自动去除关键词两边空格****//
+            // 初始化加载第一页，默认第一页
+            pageNumber: 1,
+            // 每页的记录行数
+            pageSize: 10,
+            // 可供选择的每页的行数 - (亲测大于1000存在渲染问题)
+            pageList: [5, 10, 25, 50, 100],
+            // 在上百页的情况下体验较好 - 能够显示首尾页
+            paginationLoop: true,
+            // 展示首尾页的最小页数
+            paginationPagesBySide: 2
+        };
+
+        /**
+         * 按钮相关配置
+         **/
+        const button = {
+            // 按钮的类
+            buttonsClass: 'default',
+            // 类名前缀
+            buttonsPrefix: 'btn'
+        }
+
+        /**
+         * 图标相关配置
+         **/
+        const icon = {
+            // 图标前缀
+            iconsPrefix: 'mdi',
+            // 图标大小
+            iconSize: 'mini',
+            // 图标的设置
+            icons: {
+                paginationSwitchDown: 'mdi-door-closed',
+                paginationSwitchUp: 'mdi-door-open',
+                refresh: 'mdi-refresh',
+                toggleOff: 'mdi-toggle-switch-off',
+                toggleOn: 'mdi-toggle-switch',
+                columns: 'mdi-table-column-remove',
+                detailOpen: 'mdi-plus',
+                detailClose: 'mdi-minus',
+                fullscreen: 'mdi-monitor-screenshot',
+                search: 'mdi-table-search',
+                clearSearch: 'mdi-trash-can-outline'
+            }
+        };
+
+        /**
+         * 表格相关的配置
+         **/
+        const table = {
+            classes: 'table table-bordered table-hover table-striped lyear-table',
+            // 请求地址
+            url: '{{ url_for("user.user_list") }}',
+            // 唯一ID字段
+            uniqueId: 'id',
+            // 每行的唯一标识字段
+            idField: 'id',
+            // 是否启用点击选中行
+            clickToSelect: true,
+            // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+            // showToggle: true,
+            // 请求得到的数据类型
+            dataType: 'json',
+            // 请求方法
+            method: 'post',
+            // 工具按钮容器
+            toolbar: '#toolbar',
+            // 是否分页
+            pagination: true,
+            // 是否显示所有的列
+            showColumns: true,
+            // 是否显示刷新按钮
+            showRefresh: true,
+            // 显示图标
+            showButtonIcons: true,
+            // 显示文本
+            showButtonText: false,
+            // 显示全屏
+            showFullscreen: true,
+            // 开关控制分页
+            showPaginationSwitch: true,
+            // 总数字段
+            totalField: 'total',
+            // 当字段为 undefined 显示
+            undefinedText: '-',
+            // 排序方式
+            sortOrder: "asc",
+            ...icon,
+            ...pagination,
+            ...button
+        };
+
+        /**
+         * 用于演示的列信息
+         **/
+        const columns = [{
+            field: 'example',
+            checkbox: true,
+            // 列的宽度
+            width: 5,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'id',
+            title: '编号',
+            // 使用[align]，[halign]和[valign]选项来设置列和它们的标题的对齐方式。
+            // h表示横向，v标识垂直
+            align: 'center',
+            // 是否作为排序列
+            sortable: true,
+            // 当列名称与实际名称不一致时可用
+            sortName: 'sortId',
+            switchable: false,
+            // 列的宽度
+            width: 8,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'UserName',
+            align: 'center',
+            title: '用户名',
+            titleTooltip: '用户名'
+        }, {
+            field: 'Password',
+            align: 'center',
+            title: '密码',
+            titleTooltip: '密码'
+        }, {
+            field: 'Email',
+            align: 'center',
+            title: '邮箱',
+            titleTooltip: '邮箱',
+            visible: false,
+        }, {
+            field: 'WxUid',
+            // 是否可视(默认 - true)
+            {#visible: false,#}
+            align: 'center',
+            title: '微信订阅id',
+            titleTooltip: '微信订阅id'
+        }, {
+            field: 'QQh',
+            align: 'center',
+            title: 'QQ号',
+            titleTooltip: 'QQ号'
+        }, {
+            field: 'UserLib',
+            title: '用户类型',
+            formatter: function(value, row, index){
+                var valur = "";
+                if (row.UserLib === "管理员"){
+                    value = '<span class="badge bg-danger">'+row.UserLib+'</span>'
+                }else if (row.UserLib === "普通用户"){
+                    value = '<span class="badge bg-info">'+row.UserLib+'</span>'
+                }else if(row.UserLib === "代理"){
+                    value = '<span class="badge bg-dark">'+row.UserLib+'</span>'
+                }
+                else{
+                    value = '<span class="badge bg-secondary">'+row.UserLib+'</span>'
+                }
+                return value
+            }
+        }, {
+            field: 'Time',
+            align: 'center',
+            title: '注册日期',
+            titleTooltip: '注册账号日期'
+        }, {
+            field: 'operate',
+            title: '操作',
+            formatter: btnGroup,  // 自定义方法
+            events: {
+                'click .edit-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    editUser(row);
+                },
+                'click .del-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    delUser(row);
+                },
+                'click .run-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    UserRun(row);
+                }
+            }
+        }];
+
+        // 自定义操作按钮
+        function btnGroup () {
+            let html =
+                '<a href="#!" class="btn btn-sm btn-default me-1 edit-btn" title="编辑" data-bs-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>'
+                +'<a href="#!" class="btn btn-sm btn-default del-btn" title="删除" data-bs-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>'
+            return html;
+        }
+
+        // 操作方法 - 编辑
+        function editUser(row) {
+            window.location.href = "{{ url_for('user.set_user_info') }}?UserName=" + row.UserName
+        }
+        // 操作方法 - 删除
+        function delUser(row) {
+            const UserName = row.UserName;
+            $.confirm({
+                title: '删除网站用户',
+                content: '是否删除网站用户：'+ row.UserName + '在系统的所有数据？',
+                autoClose: 'cancelAction|10000',
+                escapeKey: 'cancelAction',
+                buttons: {
+                    confirm: {
+                        btnClass: 'btn-red',
+                        text: '》删除'+ UserName+'下的所有数据《',
+                        action: function() {
+                            /**删除用户**/
+                            $.ajax({
+                                url: '{{ url_for('user.del_user') }}',
+                                method: 'POST',
+                                data: {"UserName": UserName},
+                                success: function(res){
+                                    $.alert(res.msg);
+                                    if(res.code === 200){
+                                        notify(res.msg, 'success', 3000);
+
+                                    }else{
+                                        notify(res.msg, 'danger', 3000);
+                                    }
+                                },
+
+                            })
+                        }
+                    },
+                    cancelAction: {
+                        text: '取消',
+                        action: function() {
+
+                        }
+                    }
+                }
+            });
+        }
+
+        // 删除按钮事件
+        $("#btn_delete").on("click", function() {
+            var rows = $("table").bootstrapTable('getSelections');// 获得要删除的数据
+            if (rows.length == 0) {// rows 主要是为了判断是否选中，下面的else内容才是主要
+                alert("请先选择要删除的记录!");
+                return;
+            } else {
+                var username = new Array();  // 网站账号列表
+                $(rows).each(function() {// 通过获得别选中的来进行遍历
+                    username.push(this.UserName);//加入账号列表中
+                });
+                deleteMs(username)
+            }
+        })
+        function deleteMs(username) {
+            $.confirm({
+                title: '删除网站用户',
+                content: '是否删除'+ username +'在系统的所有数据？',
+                autoClose: 'cancelAction|10000',
+                escapeKey: 'cancelAction',
+                buttons: {
+                    confirm: {
+                        btnClass: 'btn-red',
+                        text: '》删除以上网站用户《',
+                        action: function() {
+                            /**删除IMEICode**/
+                            $.ajax({
+                                url: '{{ url_for('user.del_user') }}',
+                                method: 'POST',
+                                data: "UserName=" + username,
+                                dataType: 'json',
+                                traditional: true,
+                                success: function(res){
+                                    $('#table').bootstrapTable('refresh', {
+                                        url : '{{ url_for("user.user_list") }}'
+                                    });
+                                    $.alert(res.msg);
+                                    if(res.code === 200){
+                                        notify(res.msg, 'success', 3000);
+
+                                    }else{
+                                        notify(res.msg, 'danger', 3000);
+                                    }
+
+                                },
+
+                            })
+                        }
+                    },
+                    cancelAction: {
+                        text: '取消',
+                        action: function() {
+
+                        }
+                    }
+                }
+            });
+        }
+
+        $('table').bootstrapTable({
+            ...table,
+            // 自定义的查询参数
+            queryParams: function (params) {
+                return {
+                    // 搜索的数值
+                    search: params.search,
+                    // 每页数据量
+                    limit: params.limit,
+                    // sql语句起始索引
+                    offset: params.offset,
+                    page: (params.offset / params.limit) + 1,
+                    // 排序的列名
+                    sort: params.sort,
+                    // 排序方式 'asc' 'desc'
+                    sortOrder: params.order
+                };
+            },
+            columns,
+            onLoadSuccess: function(data){
+                $("[data-bs-toggle='tooltip']").tooltip();
+            }
+        });
+
+    </script>
+    {#    {% endif %}#}
+{% endblock %}

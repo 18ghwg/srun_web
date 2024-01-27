@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title>无感阳光跑-观后无感</title>
+    <meta name="keywords" content="观后无感,无感阳光跑,自动跑,无需抓包">
+    <meta name="description" content="无感阳光跑,每天自动跑,跑完邮件或微信推送跑步状态">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/index/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/index/css/util.css">
+    <link rel="stylesheet" type="text/css" href="/index/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/user/css/bootstrap.min.css">
+</head>
+
+<body>
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-form-title" style="background-image: url(/index/image/bg-01.jpg);">
+                <span class="login100-form-title-1">无感阳光跑</span>
+            </div>
+
+            <form class="login100-form validate-form" id="form">
+
+                <div class="wrap-input100 validate-input m-b-26" data-validate="用户名不能为空">
+                    <span class="label-input100">用户名</span>
+                    <input class="input100" type="text" id="username" name="username" placeholder="请输入用户名">
+                    <span class="focus-input100"></span>
+                </div>
+
+                <div class="wrap-input100 validate-input m-b-18" data-validate="密码不能为空">
+                    <span class="label-input100">密码</span>
+                    <input class="input100" type="password" id="password" name="password" placeholder="请输入密码">
+                    <span class="focus-input100"></span>
+                </div>
+
+                <div class="wrap-input100 validate-input m-b-18" data-validate="验证码不能为空">
+                    <div style="width: 50%; float: left;">
+                        <span class="label-input100">验证码</span>
+                        <input class="input100" type="text" id="img_code" name="img_code" placeholder="请输入验证码">
+                        <span class="focus-input100"></span>
+                    </div>
+                    <div style="width: 50%; float: right;">
+                        <img src="/user/login/vcode" id="loginvcode" class="ml-2" style="cursor:pointer;"
+                             onclick="this.src='/user/login/vcode?'+Math.random()"/>
+                    </div>
+                </div>
+
+
+                <a href="https://graph.qq.com/oauth2.0/authorize?client_id=102039224&amp;response_type=code&amp;scope=all&amp;redirect_uri=https%3A%2F%2Fsrun.blog18.cn%2Fuser%2FQQLogin"><img
+                        src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="QQ登录"
+                        border="0"></a>
+
+
+                <div class="flex-sb-m w-full p-b-30">
+                    <div class="contact100-form-checkbox">
+                        <input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+                        <label class="label-checkbox100" for="ckb1">记住我</label>
+                    </div>
+
+                    <div>
+                        <a href="/user/send/reset/password/mail" class="txt1">忘记密码？</a>
+                        <a href="/user/register" class="txt1">注册账号</a>
+                    </div>
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <button type="button" id="user_login" name="user_login" class="login100-form-btn">登 录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/user/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/user/js/jquery.min.js"></script>
+<script src="/index/js/jquery-3.2.1.min.js"></script>
+<script src="/index/js/main.js"></script>
+<!--通知消息插件-->
+<script type="text/javascript" src="/user/js/bootstrap-notify.min.js"></script>
+<script>
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader('X-CSRFToken', 'ImQ4YmIxYjRiN2Q3NWE2YWNlZTI2NWNhODYzMTI0N2Y3NDI1NjMxNGMi.ZI2OnQ.Lsh5VAxysEY1ZLFHucA_NwggMlA');
+            }
+        }
+    });
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '/CsrfError';
+        }
+    });
+
+    function from() {
+        $('#user_login').on('click', function (event) {
+            if (!document.getElementById('username').value) {
+                alert("账号不能为空");
+                return;
+            }
+            if (!document.getElementById('password').value) {
+                alert("密码不能为空");
+                return;
+            }
+            $.ajax({
+                url: "/user/login",
+                method: 'POST',
+                data: $('#form').serialize(),
+            }).then(function (res) {
+                if (res.code === 200) {
+                    notify(res.msg, 'success', 1500);
+                    setTimeout(function () {
+                        location.href = '/user/index';
+                    }, 1500);
+                } else {
+                    notify(res.msg, 'danger', 1500);
+                }
+
+            });
+        });
+    }
+
+    //等待网页加载完成后执行
+    $(function () {
+        from();
+    })
+
+</script>
+
+</body>
+</html>

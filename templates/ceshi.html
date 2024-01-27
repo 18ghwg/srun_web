@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>表单图片滑块验证</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slidercaptcha@3.0.1/dist/slidercaptcha.min.css">
+  </head>
+  <body>
+    <h2>表单图片滑块验证</h2>
+    <form>
+      <label for="username">用户名:</label><br>
+      <input type="text" id="username" name="username" required><br>
+      <label for="password">密码:</label><br>
+      <input type="password" id="password" name="password" required><br>
+      <div id="slider"></div>
+      <br><br>
+      <input type="submit" value="登录">
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/slidercaptcha@3.0.1/dist/slidercaptcha.min.js"></script>
+    <script src="{{ url_for('static', filename='agent/favicon.ico', subdoman='agent') }}"></script>
+    <script>
+      var slideCaptcha = new SliderCaptcha('#slider', {
+        // 滑块图片路径
+        imgPath: 'https://picsum.photos/300/150',
+        // 拼图图片路径
+        jigsawPath: 'https://picsum.photos/150/150',
+        // 拼图区域宽度
+        jigsawWidth: 50,
+        // 滑块大小
+        sliderSize: {
+          width: 50,
+          height: 50,
+        },
+        // 拼图位置
+        jigsawPosition: {
+          x: 0,
+          y: 50
+        },
+        // 验证成功回调函数
+        onSuccess: function() {
+          document.getElementsByTagName("form")[0].submit();
+        }
+      });
+    </script>
+  </body>
+</html>

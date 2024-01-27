@@ -1,0 +1,329 @@
+<html lang="zh-CN">
+<head>
+    <meta charSet="utf-8">
+    <meta name="robots" content="all">
+    <meta name="author" content="admin@sumt.cn">
+    <meta name="format-detection" content="telephone=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport"
+          content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>修改跑步时间</title>
+    <meta itemProp="image" content="https://api.sumt.cnassets/images/api_logo.png">
+    <meta name="description" itemProp="description" content="无感阳光跑">
+    <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://lib.baomitu.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://lib.baomitu.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://lib.baomitu.com/clipboard.js/1.7.1/clipboard.min.js"></script>
+    <script src="https://lib.baomitu.com/layer/3.1.1/layer.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='agent/css/clock/bootstrap-clockpicker.css') }}">
+    <!--[if lt IE 9]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+    <script src="http://libs.useso.com/js/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">[id^=root], [id^=docs], .cc_cursor, body, .ogdlpmhglpejoiomcodnpjnfgcpmgale_default, body, html, input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"], input::-webkit-contacts-auto-fill-button, input:read-only {
+        cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABBlJREFUWEfFl19om1UYxp/zJaZr4pJqYv8QJ0lt07SZCnrVKgylF5ahwhxKsUrViSMTKhUUi0EpFlFEO7aqIxde1IvaFVdHU6YWFUoL3kxwrWtKl3PSWBtm+5GUpDV/PzlnJDUmhYak8Vx9fOfkfX7nOe953y/EarUqqVTqkdXV1Tn8D4NwAK6bTCabAoHAjUozCICamhqEQiEoinIHYyxUSQgB4PV60dzcDEmSQCmVAAhXKjEEwNLSEvr7+zE9PS00KaWkEuJcIwug0WjQ0NCA6urqikLkAIyNjcHpdILnBIAEpVRz0E7kAHR2dmJmZkZo6vV6mEymm5TSuoOEEAAmkwkbGxtCp76+HvPz8+K5trYWOp3ud8aY46AgsnUgI0AIwcLCQjYXzGYzqqqqvqOUPn4QEHkAXGR7exvBYFDoxWIxNDU1Qa1Wn2WMvV5uiIIAXGRqagptbW1Cj8O0t7fzRydj7PNyQuwJwCujLMtwuVxwu93QarVCN51OP+b3+38qF4QA4DUgHo9nY4bDYUxOTsLj8WB8fFy8VxQF7567B4N9ARCQFp/Pt1wOCAGwvLwMm82GSCSCubk5UZYzo66ujt8E2B8+hDdH78b0JzImzssc2LS2trZZKoQAWFxchM/ng8ORf9t4XXix9xQu/WFHFGkoUHD+dBBXv4/ykq0GkCoFIpsD/Lz5uRcazg8cePZtc3aKQ7x1bBV/BRIl942cJBwaGkJ3d3cew484BhWq8t6/5FiBslNa88oB2NnZwfr6eo7QNbgg45eCzvC+fdLshVYjpRhj/DiKHnnXsKurCyMjIyLQFc8Mqo9/yJvmnoE1IDiuvw6DUbXJGDMVS5AHwF0YHh7GmTNOuH9+AHcevbUx/oUi/5ZAJJRGPJZGLK4gHlMQi6chJYDP3glCUhEvpdReDEQWIBqNoq+vDwMDA+I63tt4FF/ftGX3zu1++i4vbj+sKhhfUZQ0ISRCKTUUDTA4OIienp6c3z3xfDPeGLXmmH/pIxmXv5BLzvx/C+V8D2QmDAYDjEYjPv7WAuN9u7mlg4QTR7yQVEqj3++nxex0r7V5ALzyabXaPwkh32yFkq9NyPYcF947EQD79e9txpiurAC87ba2tkKj0VyjlN7Pg/Mq+anHgprWXRcOQ4WTjd6yVEGuIRyYnZ1FR0cHVCrVRUrpM5mdWa1W91Y4dWpisyXrAr8NL7esIB1XrjLGHirVBQHAOx0h5H1Kqeu/Afn82StW6G272U9CQO+DK2VJxsw1fIFSOlpoNxaL5cvIVqr34uatXOAOaGMSnjxyHdU66QJj7HQpLuzrDwh34dwPViAOvPLoDRzS8qqAICHE7vP5wpUA+CqZUJ5T3yZ4L1NKnypFNKcO7DeQxWJ5lTF2Yb/r97vuH62WyjC39aFlAAAAAElFTkSuQmCC") 0 0, auto !important;
+    }
+
+    [role^=button], button, .cc_pointer, [type="search"]::-webkit-search-cancel-button, a, select, [type="search"]::-webkit-search-decoration, .paper-button, .ytp-progress-bar-container, input[type=submit], :link, :visited, a > *, img, button, ::-webkit-scrollbar-button, .ogdlpmhglpejoiomcodnpjnfgcpmgale_pointer, ::-webkit-file-upload-button, button, .ytp-volume-panel, #myogdlpmhglpejoiomcodnpjnfgcpmgale .icon {
+        cursor: url("data:image/png;base64,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") 8 1, auto !important;
+    }
+
+    * {
+        cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABBlJREFUWEfFl19om1UYxp/zJaZr4pJqYv8QJ0lt07SZCnrVKgylF5ahwhxKsUrViSMTKhUUi0EpFlFEO7aqIxde1IvaFVdHU6YWFUoL3kxwrWtKl3PSWBtm+5GUpDV/PzlnJDUmhYak8Vx9fOfkfX7nOe953y/EarUqqVTqkdXV1Tn8D4NwAK6bTCabAoHAjUozCICamhqEQiEoinIHYyxUSQgB4PV60dzcDEmSQCmVAAhXKjEEwNLSEvr7+zE9PS00KaWkEuJcIwug0WjQ0NCA6urqikLkAIyNjcHpdILnBIAEpVRz0E7kAHR2dmJmZkZo6vV6mEymm5TSuoOEEAAmkwkbGxtCp76+HvPz8+K5trYWOp3ud8aY46AgsnUgI0AIwcLCQjYXzGYzqqqqvqOUPn4QEHkAXGR7exvBYFDoxWIxNDU1Qa1Wn2WMvV5uiIIAXGRqagptbW1Cj8O0t7fzRydj7PNyQuwJwCujLMtwuVxwu93QarVCN51OP+b3+38qF4QA4DUgHo9nY4bDYUxOTsLj8WB8fFy8VxQF7567B4N9ARCQFp/Pt1wOCAGwvLwMm82GSCSCubk5UZYzo66ujt8E2B8+hDdH78b0JzImzssc2LS2trZZKoQAWFxchM/ng8ORf9t4XXix9xQu/WFHFGkoUHD+dBBXv4/ykq0GkCoFIpsD/Lz5uRcazg8cePZtc3aKQ7x1bBV/BRIl942cJBwaGkJ3d3cew484BhWq8t6/5FiBslNa88oB2NnZwfr6eo7QNbgg45eCzvC+fdLshVYjpRhj/DiKHnnXsKurCyMjIyLQFc8Mqo9/yJvmnoE1IDiuvw6DUbXJGDMVS5AHwF0YHh7GmTNOuH9+AHcevbUx/oUi/5ZAJJRGPJZGLK4gHlMQi6chJYDP3glCUhEvpdReDEQWIBqNoq+vDwMDA+I63tt4FF/ftGX3zu1++i4vbj+sKhhfUZQ0ISRCKTUUDTA4OIienp6c3z3xfDPeGLXmmH/pIxmXv5BLzvx/C+V8D2QmDAYDjEYjPv7WAuN9u7mlg4QTR7yQVEqj3++nxex0r7V5ALzyabXaPwkh32yFkq9NyPYcF947EQD79e9txpiurAC87ba2tkKj0VyjlN7Pg/Mq+anHgprWXRcOQ4WTjd6yVEGuIRyYnZ1FR0cHVCrVRUrpM5mdWa1W91Y4dWpisyXrAr8NL7esIB1XrjLGHirVBQHAOx0h5H1Kqeu/Afn82StW6G272U9CQO+DK2VJxsw1fIFSOlpoNxaL5cvIVqr34uatXOAOaGMSnjxyHdU66QJj7HQpLuzrDwh34dwPViAOvPLoDRzS8qqAICHE7vP5wpUA+CqZUJ5T3yZ4L1NKnypFNKcO7DeQxWJ5lTF2Yb/r97vuH62WyjC39aFlAAAAAElFTkSuQmCC") 0 0, auto
+    }
+
+    a, button, [type^=button], [role^=button] {
+        cursor: url("data:image/png;base64,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") 8 1, auto
+    }</style>
+</head>
+<body>
+<div class="app app-header-fixed">
+
+    <aside id="aside" class="app-aside hidden-xs bg-light dker">
+        <div class="aside-wrap">
+            <div class="navi-wrap">
+                <nav ui-nav="" class="navi">
+
+                </nav>
+            </div>
+        </div>
+    </aside>
+    <div id="content" class="app-content" role="main">
+        <div class="app-content-body">
+
+            <div class="wrapper">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading font-bold"
+                             style="background-color: #85C1E9;color: white;text-shadow: black 1px 1px 1px;">兑换卡密
+                        </div>
+                        <div class="panel-body">
+                            <div class="list-group-item">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">IMEICode</div>
+                                        <input type="text" id="IMEICode" onkeyup="value=value.replace(/\s+/g, '')" class="form-control"
+                                               placeholder="输入IMEICode" value="">
+                                        <div class="input-group-addon">
+                                            <span id="qrc_login" data-toggle="collapse" data-target="#qrc_div" aria-expanded="false" aria-controls="qrc_div">扫码获取</span>
+                                        </div>
+                                    </div>
+                                    <div class="collapse" id="qrc_div">
+                                        <div class="well">
+                                            <div id="uuid" style="display: none"></div>
+                                            <div id="log_img" style="text-align: center; height: 180px; width: 180px"></div>
+                                            <div class="caption">
+                                                <h3>扫码提示</h3>
+                                                <p style="color: #6f42c1">请使用另外一部手机微信扫码登录</p>
+                                                <p style="color: #06490e">登录完毕点击按钮[我已登录]自动获取IMEICode</p>
+                                                <p><a href="#" class="btn btn-success" role="button" id="check_login">我已登录</a>
+                                                    <a href="#" class="btn btn-warning" role="button" id="get_login_img_url">重获二维码</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">跑步时间</div>
+                                        <div class="col-sm-10 clockpicker" data-autoclose="true">
+                                            <input type="text" maxlength="0" id="Runtime" name="RunTime" class="form-control" placeholder="--选择跑步时间--">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label><input type="checkbox" id="check"
+                                                  style="margin-right: 5px; vertical-align: -1px;"
+                                                  onkeydown="if(event.keyCode===13){submit.click()}">我同意<a
+                                            style="color:#5DADE2">获取我的信息</a></label>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" id="submit" class="btn btn-info btn-block">修改</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-footer">
+                            <i class="fa fa-info-circle"></i>&nbsp;请输入以上表单内容：<br><span style="color:#F50A0A">[IMEICode、跑步时间]</span><br>
+                            建议复制链接到浏览器打开
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+    $('#submit').click(function () {
+        if (!$('#check').prop('checked')) {
+            layer.tips('请勾选并同意使用协议', '#check', {
+                tips: [1, '#FF3366'],
+            });
+            return false;
+        }
+
+        const IMEICode = $('#IMEICode').val();
+        const RunTime = $("#Runtime").val();
+
+        if (IMEICode === '') {
+            $('#IMEICode').focus();
+            layer.tips('请填写阳光跑IMEI', '#IMEICode', {
+                tips: [1, '#FF3366'],
+            });
+            return false;
+        } else if (RunTime === '') {
+            $('#RunTime').focus();
+            layer.tips('请填写跑步时间', '#RunTime', {
+                tips: [1, '#FF3366'],
+            });
+            return false;
+        }
+        $.ajax({
+            url: '{{ url_for("agent.put_run_time") }}',
+            method: 'POST',
+            data: {"IMEICode": IMEICode, "RunTime": RunTime},
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token() }}");
+                };
+                layer.msg('提交中，请您稍候...', {
+                    anim: 3,
+                    icon: 16,
+                    time: 2000000,
+                    offset: '230px',
+                    shade: [0.8, '#393D49'],
+                });
+            },
+            success: function (data) {
+                if (data["code"] === 200){
+                    layer.alert('<font color="#339966">'+ data["msg"] +'</font>', {
+                        shade: [0.8, '#393D49'],
+                        offset: '230px',
+                        title: false,
+                        closeBtn: 0,
+                        anim: 1,
+                        icon: 1,
+                    });
+                }
+                else {
+                    layer.alert('<font color="#FF0000">'+ data["msg"] +'</font>', {
+                        shade: [0.8, '#393D49'],
+                        offset: '230px',
+                        title: false,
+                        closeBtn: 0,
+                        anim: 1,
+                        icon: 1,
+                    });
+                }
+            },
+            error: function (data) {
+                layer.alert('<font color="#FF0000">提交失败：服务器响应失败！</font>', {
+                    shade: [0.8, '#393D49'],
+                    offset: '230px',
+                    title: false,
+                    closeBtn: 0,
+                    anim: 1,
+                    icon: 5,
+                });
+            }
+
+        });
+    });
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='agent/js/clock/bootstrap-clockpicker.js') }}"></script>
+
+<script type="text/javascript">
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+            }
+        }
+    });
+    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 400) {
+            // 跳转到CSRF验证失败的页面
+            window.location.href = '{{ url_for('csrf_error_index') }}';
+        }
+    });
+
+
+    // 检测登录状态
+    function check_login(){
+        $('#check_login').on('click', function(event){
+            //定时关闭
+            window.setTimeout(function(){
+                $(".alert-info").removeClass("show");
+            },6000);//显示的时间
+            //信息框
+            $(".alert-info").addClass("show");
+            //对html传值
+            notify("检测登录状态中...", "info", 2000)
+            const qrc_img_url =  $('#qrc_img').attr('src');  //二维码地址
+            const uuid = document.getElementById('uuid').innerHTML;  // uuid
+            const img_div = document.getElementById("log_img");  // 图片框
+            const input = document.getElementById("IMEICode");  //获取input对象
+            $.ajax({
+                url: '{{ url_for('user_qrc.qrc_check_login') }}',
+                method: 'POST',
+                data: {"qrc_img_url": qrc_img_url, "uuid": uuid},
+                success: function(res){
+                    img_div.style.display="none";  // 隐藏二维码
+                    //对html传值
+                    if (res.code === 200){
+                        $(".alert-info").addClass("show");
+                        notify("获取到IMECode！已自动填写！", "success", 2000)
+                        input.value = res.IMEICode; // 设置token input value
+                    }else{
+                        $(".alert-info").addClass("show");
+                        notify("未登录", "danger", 2000)
+                    }
+
+                },
+                error: function(msg){
+                    var code = msg.status;
+                    if(code === 429){
+                        notify("频繁请求！", "danger", 2000)
+                    }else if(code === 403){
+                        notify("erro: 非法请求！", "danger", 2000)
+                    }else if(code === 500){
+                        notify("erro: 接口请求失败！", "danger", 2000)
+                    }
+                }
+
+            })
+        });
+    }
+
+    // 获取登录二维码
+    function get_login_img(){
+        $('#get_login_img_url, #qrc_login').on('click', function(event){
+            //定时关闭
+            window.setTimeout(function(){
+                $(".alert-info").removeClass("show");
+            },3000);//显示的时间
+            //信息框
+            $(".alert-info").addClass("show");
+            //对html传值
+            var get_img_button=document.getElementById("qrc_login");  // 获取二维码按钮
+            const uuid = document.getElementById('uuid');  // uuid
+            get_img_button.style.display="none";  // 隐藏按钮
+            notify("正在获取。。。。", "info", 2000)
+            $.ajax({
+                url: '{{ url_for('user_qrc.get_qrc_img') }}',
+                method: 'POST',
+                success: function(res){
+                    var obj=document.getElementById("log_img");  // 图片框
+                    obj.style.display="block";  // 显示二维码
+                    obj.innerHTML='<img id="qrc_img" src="' + res["img_url"] + '" height="180px" width="180px" />'
+                    uuid.innerHTML = res['uuid'];
+                    if (res['code'] === 200) {
+                        notify("获取成功", "success", 2000)
+                    }
+                    else if(res['code'] === 400){
+                        notify("获取失败", "danger", 2000)
+                    }
+
+                },
+                error: function(msg){
+                    //信息框
+                    $(".alert-info").addClass("show");
+                    var code = msg.status;
+                    if(code === 429){
+                        notify("频繁请求！", "danger", 2000)
+                    }else if(code === 403){
+                        notify("erro: 非法请求！", "danger", 2000)
+                    }else if(code === 500){
+                        notify("erro: 接口请求失败！", "danger", 2000)
+                    }
+                }
+
+            })
+        });
+    }
+
+    //等待网页加载完成后执行
+    $(function () {
+        check_login();  // 检测登录状态
+        get_login_img();  // 获取登录二维码
+    })
+</script>
+<script type="text/javascript">
+    $('.clockpicker').clockpicker();
+</script>
+
+<div id="NR_CHROME_EXTENSIONS" style="display: none;"></div>
+<div class="layui-layer-move"></div>
+</body>
+</html>

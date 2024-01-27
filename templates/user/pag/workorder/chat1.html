@@ -1,0 +1,168 @@
+{% extends "user/header.html" %}
+{% block  title%}工单聊天{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--标签插件css-->
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='user/js/jquery-tagsinput/jquery.tagsinput.min.css') }}">
+    <style>
+        .message-container {
+            display: flex;
+            flex-direction: column;  /* 修改此行 */
+            padding: 10px;
+        }
+
+        .message {
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 20px;
+            max-width: 70%;  /* 修改此行 */
+            word-wrap: break-word;
+        }
+
+
+        .message.left {
+            align-self: flex-start;
+            background-color: #f3f3cb;  /* 修改此行 */
+            margin-left: 0;
+        }
+
+        .message.right {
+            align-self: flex-end;
+            background-color: #dcf8c6;  /* 修改此行 */
+            margin-right:0 ;
+        }
+
+
+        .time {
+            font-size: 12px;
+            margin-left: 10px;  /* 添加此行 */
+        }
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+    <div class="container">
+        <h1>工单聊天</h1>
+        <div id="chatMessages"></div>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="messageInput" placeholder="Type your message">
+        </div>
+        <button class="btn btn-primary" id="sendMessageBtn">发送消息</button>
+    </div>
+    </main>
+
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+
+        // 获取聊天消息并刷新界面
+        function getChatMessages() {
+            const apiUrl = '{{ url_for("user_work.chat_get_msg") }}';  // 替换为实际的接口地址
+            var content_type = 'left';
+            var notes_type = 'right';
+            axios.post(apiUrl, {"workorder_id": {{ WorkorderID }}})
+                .then(response => {
+                    const data = response.data;
+                    if (data.code === 200) {
+                        const chatMessages = document.getElementById('chatMessages');
+                        chatMessages.innerHTML = '';  // 清空聊天消息容器
+
+                        data.data.forEach(message => {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.classList.add('message');
+
+                            if (message.content) {
+                                // 对方消息
+                                if(message.user ===  '{{ username }}'){  {#我就是发工单用户#}
+                                    content_type = 'right';
+                                    messageDiv.style.cssText = 'margin-right: 0; text-align: right;';
+                                }
+                                else{
+                                    content_type = 'left';
+                                }
+                                messageDiv.classList.add(content_type);
+                                messageDiv.innerHTML = message.user+'：'+message.content;
+
+                            } else if (message.notes) {
+                                // 我方消息
+                                if (content_type === 'left'){
+                                    notes_type = 'right';
+                                    messageDiv.style.cssText = 'margin-right: 0; text-align: right;';
+                                    {#console.log("notes: right")#}
+                                }
+                                else{
+                                    notes_type = 'left';
+                                    {#console.log("notes:left")#}
+                                }
+                                messageDiv.classList.add(notes_type);
+                                messageDiv.innerHTML = message.user+'：'+message.notes;
+                            }
+
+                            chatMessages.appendChild(messageDiv);
+
+                            // 时间戳
+                            const timeSpan = document.createElement('span');
+                            timeSpan.classList.add('time');
+                            timeSpan.innerHTML = '<br>'+new Date(message.time * 1000).toLocaleString();
+                            messageDiv.appendChild(timeSpan);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const apiUrl = '{{ url_for("user_work.chat_send_msg") }}';  // 替换为实际的接口地址
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+            {#console.log(message);#}
+            if (message) {
+                axios.post(apiUrl, { workorder_id: 51, msg: message})
+                    .then(response => {
+                        // 处理发送成功后的逻辑
+                        // ...
+                        if(response.data["code"]===200){
+                            notify(response.data["msg"], "success", 1200);
+                        }
+                        else{
+                            notify(response.data["msg"], "danger", 5000);
+                        }
+                        messageInput.value = '';  // 清空输入框
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        }
+
+        // 定时刷新聊天消息
+        setInterval(() => {
+            getChatMessages();
+        }, 3000);
+
+        // 点击发送按钮发送消息
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        sendMessageBtn.addEventListener('click', () => {
+            sendMessage();
+        });
+    </script>
+
+{% endblock %}

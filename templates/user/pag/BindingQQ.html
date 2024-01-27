@@ -1,0 +1,89 @@
+{% extends "user/header.html" %}
+{% block title %}绑定QQ{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header"><div class="card-title">绑定QQ</div></header>
+                        <div class="card-body">
+                            {% if OpenId %}
+                                <div>
+                                    <label for="openid">QQ用户ID</label>
+                                    <div class="mb-3 col-md-12 input-group">
+                                        <input type="openid" class="form-control" value="{{ OpenId }}"  disabled="abcd">
+                                        <a class="btn btn-primary" type="button" onclick="relieve_binding()"><span>解除绑定</span></a>
+                                    </div>
+                                </div>
+                            {% else %}
+
+                                <a class="btn btn-primary" type="button" href="https://graph.qq.com/oauth2.0/authorize?client_id=102039224&amp;response_type=code&amp;scope=all&amp;redirect_uri=http%3A%2F%2Fsrun.vip%2FUser%2FBindingQQ"><span>开始授权</span></a>
+
+                            {% endif %}
+                            <div class="accordion-body">
+                                <div id="ico_img" style="display: none; text-align: center; height: 180px; width: 180px"></div>
+                            </div>
+                            <p>温馨提示：</p>
+                            <P>绑定QQ可以用于本站快捷登录等功能</P>
+                            <P>解除绑定请点击按钮</P>
+                            <P>一个账号只能绑定一个QQ</P>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+
+
+{% block js %}
+    <!--tags插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-tagsinput/jquery.tagsinput.min.js') }}"></script>
+    <!--灯箱效果插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/magnific-popup/magnific-popup.min.js') }}"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <script type="text/javascript">
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        function relieve_binding(){
+            $.ajax({
+                type: 'post',
+                url: '{{ url_for("user.relieve_binding") }}',
+                dataType: 'json',
+                success: function(res) {
+                    notify(res.msg, 'success', 3000);
+                    if(res.code === 200){
+                        window.location.reload();  // 刷新界面
+                    }
+                },
+            });
+        }
+        function msg(){
+            notify('{{ msg }}', 'success', 3000);
+        }
+        {% if msg %}
+            msg();
+        {% endif %}
+
+    </script>
+{% endblock %}

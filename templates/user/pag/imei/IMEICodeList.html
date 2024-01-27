@@ -1,0 +1,561 @@
+{% extends "user/header.html" %}
+{% block  title%}IMEICode列表{% endblock %}
+{% block css %}
+    <!--表格插件css-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/css/style.min.css') }}">
+{% endblock %}
+
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header">
+                            <div class="card-title">账号下IMEICode列表</div>
+                        </header>
+
+                        <div class="card-body">
+                            <div id="toolbar" class="toolbar-btn-action">
+                                <a href="{{ url_for('user_imei.user_add_imeicode') }}">
+                                    <button id="btn_add" type="button" class="btn btn-primary me-1">
+                                        <span class="mdi mdi-plus" aria-hidden="true"></span>新增
+                                    </button>
+                                </a>
+                                <button id="btn_delete" type="button" class="btn btn-danger">
+                                    <span class="mdi mdi-window-close" aria-hidden="true"></span>删除
+                                </button>
+                                <button id="btn_run" type="button" class="btn btn-success">
+                                    <span class="mdi mdi-run-fast" aria-hidden="true"></span>跑步
+                                </button>
+                            </div>
+                            <table id="table"></table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        {# 模态框 #}
+        <div class="modal fade" id="cjModal" tabindex="-1" aria-labelledby="cjModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="cjModalLabel">成绩</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="cjFrame" src="" frameborder="0" width="100%" height="500"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+{% block js %}
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--表格插件js-->
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/bootstrap-table.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <script>
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        /**
+         * 分页相关的配置
+         **/
+        const pagination = {
+            // 分页方式：[client] 客户端分页，[server] 服务端分页
+            sidePagination: "server",
+            search: true, //******开启搜索框****//
+            searchOnEnterKey:false, //******回车后执行搜索****//
+            trimOnSearch: true, //******自动去除关键词两边空格****//
+            searchAlign: 'right',
+            // 初始化加载第一页，默认第一页
+            pageNumber: 1,
+            // 每页的记录行数
+            pageSize: 10,
+            // 可供选择的每页的行数 - (亲测大于1000存在渲染问题)
+            pageList: [5, 10, 25, 50, 100],
+            // 在上百页的情况下体验较好 - 能够显示首尾页
+            paginationLoop: true,
+            // 展示首尾页的最小页数
+            paginationPagesBySide: 2
+        };
+
+        /**
+         * 按钮相关配置
+         **/
+        const button = {
+            // 按钮的类
+            buttonsClass: 'default',
+            // 类名前缀
+            buttonsPrefix: 'btn'
+        }
+
+        /**
+         * 图标相关配置
+         **/
+        const icon = {
+            // 图标前缀
+            iconsPrefix: 'mdi',
+            // 图标大小
+            iconSize: 'mini',
+            // 图标的设置
+            icons: {
+                paginationSwitchDown: 'mdi-door-closed',
+                paginationSwitchUp: 'mdi-door-open',
+                refresh: 'mdi-refresh',
+                toggleOff: 'mdi-toggle-switch-off',
+                toggleOn: 'mdi-toggle-switch',
+                columns: 'mdi-table-column-remove',
+                detailOpen: 'mdi-plus',
+                detailClose: 'mdi-minus',
+                fullscreen: 'mdi-monitor-screenshot',
+                search: 'mdi-table-search',
+                clearSearch: 'mdi-trash-can-outline'
+            }
+        };
+
+        /**
+         * 表格相关的配置
+         **/
+        const table = {
+            classes: 'table table-bordered table-hover table-striped lyear-table',
+            // 请求地址
+            url: '{{ url_for("user_imei.user_imei_list") }}',
+            // 唯一ID字段
+            uniqueId: 'id',
+            // 每行的唯一标识字段
+            idField: 'id',
+            // 是否启用点击选中行
+            clickToSelect: true,
+            // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+            // showToggle: true,
+            // 请求得到的数据类型
+            dataType: 'json',
+            // 请求方法
+            method: 'post',
+            // 工具按钮容器
+            toolbar: '#toolbar',
+            // 是否分页
+            pagination: true,
+            // 是否显示所有的列
+            showColumns: true,
+            // 是否显示刷新按钮
+            showRefresh: true,
+            // 显示图标
+            showButtonIcons: true,
+            // 显示文本
+            showButtonText: false,
+            // 显示全屏
+            showFullscreen: true,
+            // 开关控制分页
+            showPaginationSwitch: true,
+            // 总数字段
+            totalField: 'total',
+            // 当字段为 undefined 显示
+            undefinedText: '-',
+            // 排序方式
+            sortOrder: "asc",
+            ...icon,
+            ...pagination,
+            ...button
+        };
+
+        /**
+         * 用于演示的列信息
+         **/
+        const columns = [{
+            field: 'example',
+            checkbox: true,
+            // 列的宽度
+            width: 5,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'id',
+            title: '编号',
+            // 使用[align]，[halign]和[valign]选项来设置列和它们的标题的对齐方式。
+            // h表示横向，v标识垂直
+            align: 'center',
+            // 是否作为排序列
+            sortable: true,
+            // 当列名称与实际名称不一致时可用
+            sortName: 'sortId',
+            switchable: false,
+            // 列的宽度
+            width: 8,
+            // 宽度单位
+            widthUnit: 'rem'
+        }, {
+            field: 'Name',
+            align: 'center',
+            title: '姓名',
+            titleTooltip: '姓名'
+        }, {
+            field: 'School',
+            align: 'center',
+            title: '学校',
+            titleTooltip: '学校'
+        }, {
+            field: 'UserId',
+            align: 'center',
+            title: 'userid',
+            titleTooltip: 'userid',
+            visible: false,
+        }, {
+            field: 'RunTime',
+            // 是否可视(默认 - true)
+            {#visible: false,#}
+            align: 'center',
+            title: '跑步时间',
+            titleTooltip: '你设置的跑步时间'
+        }, {
+            field: 'VipedDate',
+            align: 'center',
+            title: 'vip到期时间',
+            titleTooltip: 'vip到期时间'
+        }, {
+            field: 'VipRunNum',
+            align: 'center',
+            title: '剩余次数',
+            titleTooltip: '次数卡密充值的跑步次数'
+        }, {
+            field: 'User',
+            align: 'center',
+            title: '所属',
+            titleTooltip: '所归属的账号'
+        }, {
+            field: 'VipLib',
+            title: 'vip类型',
+            formatter: function(value, row, index){
+                var valur = "";
+                if (row.VipLib === "扫码"){
+                    value = '<span class="badge bg-info">扫码</span>'
+                }else if (row.VipLib === "抓包"){
+                    value = '<span class="badge bg-danger">抓包</span>'
+                }
+                else{
+                    value = '<span class="badge bg-secondary">未知</span>'
+                }
+                return value
+            }
+        }, {
+            field: 'RunDate',
+            align: 'center',
+            title: '最后跑步',
+            titleTooltip: '最后的跑步时间'
+        }, {
+            field: 'Time',
+            align: 'center',
+            title: '添加时间',
+            titleTooltip: '添加的时间'
+        }, {
+            field: 'State',
+            title: '状态',
+            formatter:function(value, row, index){
+                var value="";
+                if (row.State == '0') {
+                    value = '<span class="badge bg-danger">无效</span>';
+                } else if(row.State == '1') {
+                    value = '<span class="badge bg-success">有效</span>';
+                } else {
+                    value = '<span class="badge bg-secondary">未知</span>' ;
+                }
+                return value;
+            }
+        }, {
+            field: 'operate',
+            title: '操作',
+            formatter: btnGroup,  // 自定义方法
+            events: {
+                'click .edit-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    editUser(row);
+                },
+                'click .del-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    delUser(row);
+                },
+                'click .run-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    UserRun(row);
+                },
+                'click .cj-btn': function (event, value, row, index) {
+                    event.stopPropagation();
+                    var url = "http://sportsapp.aipao.me/Manage/UserDomain_SNSP_Records.aspx/MyResutls?userId=" + row.UserId;
+                    $("#cjFrame").attr("src", url);
+                    $("#cjModal").modal("show");
+                }
+            }
+        }];
+
+
+        // 自定义操作按钮
+        function btnGroup () {
+            let html =
+                '<a href="#!" class="btn btn-sm btn-default me-1 edit-btn" title="编辑" data-bs-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>'
+                +'<a href="#!" class="btn btn-sm btn-default del-btn" title="删除" data-bs-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>'
+                +'<a href="#!" class="btn btn-sm btn-default run-btn" title="跑步" data-bs-toggle="tooltip"><i class="mdi mdi-run"></i></a>'
+                +'<a href="#!" class="btn btn-sm btn-default cj-btn" title="成绩" data-bs-toggle="tooltip"><i class="mdi mdi-clock-edit"></i></a>';
+            return html;
+        }
+
+        // 操作方法 - 成绩
+        function UserCj(row) {
+            $.alert({
+                title: '成绩查询',
+                content: '它一次可以顺利地做多次确认。<br>单击“确认”或“取消”以获取另一个模式',
+                icon: 'mdi mdi-rocket',
+                animation: 'scale',
+                closeAnimation: 'scale',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        btnClass: 'btn-blue'
+                    }
+                }
+            });
+        }
+
+        // 操作方法 - 编辑
+        function editUser(row) {
+            window.location.href = "{{ url_for('user_imei.set_imei_info') }}?UserId=" + row.UserId
+        }
+        // 操作方法 - 删除
+        function delUser(row) {
+            const UserId = row.UserId;
+            $.confirm({
+                title: '账号删除',
+                content: '是否删除' + row.Name + '的跑步账号',
+                autoClose: 'cancelAction|10000',
+                escapeKey: 'cancelAction',
+                buttons: {
+                    confirm: {
+                        btnClass: 'btn-red',
+                        text: '》删除'+ row.Name+'的跑步账号《',
+                        action: function() {
+                            /**删除IMEICode**/
+                            console.log(UserId);
+                            $.ajax({
+                                url: '{{ url_for('user_imei.del_imei_info') }}',
+                                method: 'POST',
+                                data: {"UserId": UserId},
+                                success: function(res){
+                                    $.alert(res.msg);
+                                    if(res.code === 200){
+                                        notify(res.msg, 'success', 3000);
+                                    }else{
+                                        notify(res.msg, 'danger', 3000);
+                                    }
+                                },
+
+                            })
+                        }
+                    },
+                    cancelAction: {
+                        text: '取消',
+                        action: function() {
+
+                        }
+                    }
+                }
+            });
+        }
+
+        // 操作方法 - 跑步
+        function UserRun(row) {
+            console.log(row.IMEICode);
+            $.ajax({
+                url: '{{ url_for('user_imei.user_run_imei') }}',
+                method: 'POST',
+                data: {"UserId": row.UserId},
+                success: function(res){
+                    $.alert(res.msg);
+                    if(res.code === 200){
+                        notify(res.msg, 'info', 3000);
+                    }else{
+                        notify(res.msg, 'danger', 3000);
+                    }
+                },
+
+            })
+        }
+
+        // 删除按钮事件
+        $("#btn_delete").on("click", function() {
+            var rows = $("table").bootstrapTable('getSelections');// 获得要删除的数据
+            if (rows.length == 0) {// rows 主要是为了判断是否选中，下面的else内容才是主要
+                alert("请先选择要删除的记录!");
+                return;
+            } else {
+                var userid = new Array();// 声明一个数组
+                var name = new Array();  // 姓名列表
+                $(rows).each(function() {// 通过获得别选中的来进行遍历
+                    userid.push(this.UserId);//userid为选中的阳光跑的用户id
+                    name.push(this.Name);// 将要删除账号的姓名加入数组
+                });
+                deleteMs(userid, name)
+            }
+        })
+        function deleteMs(userid, name) {
+            $.confirm({
+                title: '删除跑步账号',
+                content: '是否删除'+name+'的跑步账号？',
+                autoClose: 'cancelAction|10000',
+                escapeKey: 'cancelAction',
+                buttons: {
+                    confirm: {
+                        btnClass: 'btn-red',
+                        text: '》删除以上人员的跑步账号《',
+                        action: function() {
+                            /**删除IMEICode**/
+                            $.ajax({
+                                url: '{{ url_for('user_imei.del_imei_info') }}',
+                                method: 'POST',
+                                data: "UserId=" + userid,
+                                dataType: 'json',
+                                traditional: true,
+                                success: function(res){
+                                    $('#table').bootstrapTable('refresh', {
+                                        url : '{{ url_for('user_imei.user_imei_list') }}'
+                                    });
+                                    $.alert(res.msg);
+                                    if(res.code === 200){
+                                        notify(res.msg, 'success', 3000);
+                                    }else{
+                                        notify(res.msg, 'danger', 3000);
+                                    }
+                                },
+
+                            })
+                        }
+                    },
+                    cancelAction: {
+                        text: '取消',
+                        action: function() {
+
+                        }
+                    }
+                }
+            });
+        }
+
+        // 跑步按钮事件
+        $("#btn_run").on("click", function() {
+            var rows = $("table").bootstrapTable('getSelections');// 获得要跑步的数据
+            if (rows.length == 0) {// rows 主要是为了判断是否选中，下面的else内容才是主要
+                alert("请先选择要跑步的账号!");
+                return;
+            } else {
+                var userid = new Array();// 声明一个数组
+                var name = new Array();  // 姓名列表
+                $(rows).each(function() {// 通过获得别选中的来进行遍历
+                    userid.push(this.UserId);//userid为选中的阳光跑的用户id
+                    name.push(this.Name);// 将要跑步账号的姓名加入数组
+                });
+                RunMs(userid, name)
+            }
+        })
+        function RunMs(userid, name) {
+            $.confirm({
+                title: '批量跑步',
+                content: '是否批量给'+name+'的账号跑步？',
+                autoClose: 'cancelAction|10000',
+                escapeKey: 'cancelAction',
+                buttons: {
+                    confirm: {
+                        btnClass: 'btn-green',
+                        text: '》执行批量跑步《',
+                        action: function() {
+                            /**删除IMEICode**/
+                            $.ajax({
+                                url: '{{ url_for('user_imei.user_run_imei') }}',
+                                method: 'POST',
+                                data: "UserId=" + userid,
+                                dataType: 'json',
+                                traditional: true,
+                                success: function(res){
+                                    $('#table').bootstrapTable('refresh', {
+                                        url : '{{ url_for('user_imei.user_imei_list') }}'
+                                    });
+                                    $.alert(res.msg);
+                                    if(res.code === 200){
+                                        notify(res.msg, 'info', 3000);
+
+                                    }else{
+                                        notify(res.msg, 'danger', 3000);
+                                    }
+                                },
+
+
+                            })
+                        }
+                    },
+                    cancelAction: {
+                        text: '取消',
+                        action: function() {
+
+                        }
+                    }
+                }
+            });
+        }
+
+        $('table').bootstrapTable({
+            ...table,
+            // 自定义的查询参数
+            queryParams: function (params) {
+                return {
+                    // 搜索的数值
+                    search: params.search,
+                    // 每页数据量
+                    limit: params.limit,
+                    // sql语句起始索引
+                    offset: params.offset,
+                    page: (params.offset / params.limit) + 1,
+                    // 排序的列名
+                    sort: params.sort,
+                    // 排序方式 'asc' 'desc'
+                    sortOrder: params.order,
+                };
+            },
+            columns,
+            onLoadSuccess: function(data){
+                $("[data-bs-toggle='tooltip']").tooltip();
+            }
+        });
+
+    </script>
+{% endblock %}

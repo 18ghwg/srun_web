@@ -1,0 +1,161 @@
+{% extends "user/header.html" %}
+{% block title %}设置vip信息{% endblock %}
+{% block css %}
+    <!--对话框插件css-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.css') }}">
+{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header"><div class="card-title">修改跑步用户信息</div></header>
+                        <div class="card-body">
+
+                            <form id="form" class="form">
+                                <input type="text" class="form-control" hidden="hidden" id="UserId" name="UserId" value="{{ UserId }}" />
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="Name" class="form-label">姓名</label>
+                                    <input type="text" class="form-control" name="Name" value="{{ Name }}" placeholder="用户的姓名" disabled="abc" />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="School" class="form-label">学校<br></label>
+                                    <input type="text" class="form-control" name="School" value="{{ School }}" placeholder="学校" disabled="abc" />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="VipLib" class="form-label">Vip类型</label>
+                                    <input class="form-control" type="text"  name="VipLib" id="VipLib" placeholder="请输入VIP类型" value="{{ VipLib }}" />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="VipRunNum" class="form-label">剩余跑步次数</label>
+                                    <input type="text" class="form-control" id="VipRunNum" name="VipRunNum" value="{{ VipRunNum }}" placeholder="vip剩余的跑步次数"  />
+                                </div>
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="VipedDate" class="form-label">VIP到期时间</label>
+                                    <input class="form-control" type="text" name="VipedDate" id="VipedDate" placeholder="请选择具体时间" value="{{ VipedDate }}" />                                </div>
+
+
+                                <div class="mb-3 col-md-12">
+                                    <label for="User" class="form-label">账号所属</label>
+                                    <input type="text" class="form-control" id="User" name="User" value="{% if User %}{{ User }}{% else %}{% endif %}" placeholder="请填写跑步账号所属用户名"  />
+                                </div>
+
+
+                                <div class="mb-3 col-md-12">
+                                    <button id="login-btn" type="submit" class="btn btn-primary">保存</button>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+
+
+{% block js %}
+    <!--tags插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-tagsinput/jquery.tagsinput.min.js') }}"></script>
+    <!--灯箱效果插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/magnific-popup/magnific-popup.min.js') }}"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <!--对话框插件js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+    <!--表单验证插件-->
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/formValidation.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/framework/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='user/js/formvalidation/js/language/zh_CN.js') }}"></script>
+    <!--对话框插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-confirm/jquery-confirm.min.js') }}"></script>
+
+    <script>
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        //前端表单验证
+        $('#form').formValidation({
+            fields: {
+                UserId: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+                VipLib: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+                VipRunNum: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+                VipedDate: {
+                    validators: {
+                        notEmpty: true,
+                    }
+                },
+            }
+        }).on('success.form.fv', function (e) {
+            //阻止表单提交
+            e.preventDefault();
+            //得到表单对象
+            let $form = $(e.target);
+            let data = $form.serialize();
+
+
+            //得到序列化数据
+            $.ajax({
+                url: "{{ url_for('user_vip.set_vip_info') }}",
+                method: 'POST',
+                data
+            }).then(function (res) {
+                $.alert(res.msg);
+                if(res.code===200){
+                    notify(res.msg, 'success', 1500);
+                }
+                else{
+                    notify(res.msg, 'danger', 3000);
+                }
+
+            });
+        });
+        function mod_viped_date() {
+            var datetime = document.getElementById("datetime").value;
+            console.log(datetime);
+            //处理vip到期时间
+            document.getElementById("VipedDate").value = datetime;
+        }
+
+    </script>
+{% endblock %}

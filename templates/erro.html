@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="keywords" content="观后无感,无感阳光跑,自动跑,无需抓包">
+    <meta name="description" content="无感阳光跑,每天自动跑,跑完邮件或微信推送跑步状态">
+    <meta name="author" content="yinq">
+    <title>消息提示</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link href="{{ url_for('static', filename='user/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='user/css/materialdesignicons.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='user/css/style.min.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f5fa;
+        }
+        [data-theme|='translucent'],
+        [data-theme|='dark'] {
+            background: transparent;
+            color: #fff;
+        }
+        .error-page {
+            height: 100%;
+            position: fixed;
+            width: 100%;
+        }
+        .error-body {
+            padding-top: 5%;
+        }
+        .error-body h1 {
+            font-size: 210px;
+            line-height: 210px;
+            color: #cacaca;
+        }
+    </style>
+</head>
+
+<body>
+<section class="error-page">
+    <div class="error-box">
+        <div class="error-body text-center">
+            <h1>{{ code }}</h1>
+            <h5 class="mb-5 mt-3 text-gray">{{ msg }}</h5>
+            <a href="{{ url_for('user.user_index') }}" class="btn btn-primary">返回首页</a>
+        </div>
+    </div>
+</section>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript">;</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+{% extends "user/header.html" %}
+{% block title %}微信消息订阅{% endblock %}
+
+
+{% block content %}
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <header class="card-header"><div class="card-title">订阅微信消息</div></header>
+                        <div class="card-body">
+                            <input type="text" class="form-control" hidden="hidden" id="userid" name="userid" value="{{ UserId }}" />
+                            <label for="uid" class="form-label">微信订阅用户uid</label>
+                            <div class="mb-3 col-md-12 input-group">
+                                {% if WxUid %}
+                                    <input type="text" class="form-control" value="{{ WxUid }}" disabled="abcd">
+                                {% endif %}
+                                <button class="btn btn-success" type="button" id="lod-qrc" data-bs-toggle="collapse" data-bs-target="#lod-qrc" aria-expanded="false" aria-controls="lod-qrc" onclick="get_wxsub_img()">扫码订阅</button>
+                            </div>
+                            <div id="lod-qrc" class="accordion-collapse collapse" aria-labelledby="lod-qrc" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <div id="log_img" style="display: none; text-align: center; height: 180px; width: 180px"></div>
+                                </div>
+                                <button id="lod-qrc2" class="btn btn-primary" type="button" onclick="get_wxsub_img()">重新获取二维码</button>
+                            </div>
+                            <p>温馨提示：</p>
+                            <P>用微信扫码关注公众号后即可成功订阅消息推送</P>
+                            <p>如订阅失败可复制在微信访问进行订阅：<text style="color: blue">https://wxpusher.zjiecode.com/wxuser/?type=1&id=38335#/follow</text></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    <!--End 页面主要内容-->
+{% endblock %}
+
+
+{% block js %}
+    <!--tags插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/jquery-tagsinput/jquery.tagsinput.min.js') }}"></script>
+    <!--灯箱效果插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/magnific-popup/magnific-popup.min.js') }}"></script>
+    <!--通知消息插件-->
+    <script type="text/javascript" src="{{ url_for('static', filename='user/js/bootstrap-notify.min.js') }}"></script>
+    <script>
+    $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status === 400) {
+                // 跳转到CSRF验证失败的页面
+                window.location.href = '{{ url_for('csrf_error_index') }}';
+            }
+        });
+        function get_wxsub_img() {
+            const get_qrc_button = document.getElementById("lod-qrc");  // 获取二维码按钮
+            get_qrc_button.style.display="none";  // 隐藏按钮
+            $.ajax({
+                url: '{{ url_for('user.get_wx_qrcimg') }}',
+                method: 'POST',
+                success: function(res){
+                    const obj = document.getElementById("log_img");  // 图片框
+                    obj.style.display="block";  // 显示二维码
+                    obj.innerHTML='<img id="qrc_img" src="' + res["img"] + '" height="180px" width="180px" />'
+                }
+            })
+
+        }
+
+        var isLoaded = false;
+        function reqs() {
+            $.ajax({
+                type: 'post',
+                url: '{{ url_for("user.check_wx_sub_state") }}',
+                dataType: 'json',
+                beforeSend: function(xhr) {
+                    isLoaded = false;
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token() }}');
+                },
+                success: function(res) {
+                    {#console.log(res);#}
+                    // 处理信息
+                    {% if not WxUid %}
+                        if (res.code === 200) {
+                            window.location.reload();  // 刷新界面
+                        }
+                    {% endif %}
+                },
+                complete: function() {
+                    isLoaded = true;
+                },
+                error: function() {
+                    console.log('请求失败~');
+                }
+            });
+        }
+        reqs();
+        setInterval(function() {
+            isLoaded && reqs();
+        }, 10000);
+
+    </script>
+{% endblock %}
