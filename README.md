@@ -18,5 +18,7 @@
 <br>
 等待安装成功即可访问网站首页
 <br>
+演示：[srun.vip](https://github.com/18ghwg/srun_web)
+<br>
 想要在服务器上搭建的可以看我另外一个项目:[ying](https://github.com/18ghwg/yqing)
 ### --观后无感
