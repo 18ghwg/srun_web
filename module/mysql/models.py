@@ -25,29 +25,29 @@ def to_json(inst, cls):
 class WebConfig(db.Model):
     __tablename__ = 'WebConfig'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    WebName = db.Column(db.String(50), nullable=False, comment="网站名称")
-    Managers = db.Column(db.String(200), nullable=False, comment="管理员账号id, QQ号或者频道id")
-    WebUrl = db.Column(db.String(200), nullable=False, comment="网站url")
-    EmailGG = db.Column(db.Text(255), nullable=False, default=None, comment="邮件公告")
-    CorpID = db.Column(db.String(200), nullable=False, comment="企业微信ID")
-    AccessToken = db.Column(db.Text(200), nullable=False, comment="企业微信token")
-    AgentID = db.Column(db.String(200), nullable=False, comment="企业微信应用ID")
-    CorpSecret = db.Column(db.String(200), nullable=False, comment="企业微信应用密钥")
-    SendEmailMaxNum = db.Column(db.Integer, nullable=False, comment="验证邮件的最大发送次数")
-    WebGG = db.Column(db.String(200), nullable=False, comment="网站公告")
+    WebName = db.Column(db.String(50), nullable=False, comment="网站名称", default="网站名称")
+    Managers = db.Column(db.String(200), nullable=False, comment="管理员账号id, QQ号或者频道id", default="管理员账号id, QQ号或者频道id")
+    WebUrl = db.Column(db.String(200), nullable=False, comment="网站url", default="网站url")
+    EmailGG = db.Column(db.Text(255), nullable=False, default="邮箱公告", comment="邮件公告")
+    CorpID = db.Column(db.String(200), nullable=False, comment="企业微信ID", default="企业微信ID")
+    AccessToken = db.Column(db.Text(200), nullable=False, comment="企业微信token", default="企业微信token")
+    AgentID = db.Column(db.String(200), nullable=False, comment="企业微信应用ID", default="企业微信应用ID")
+    CorpSecret = db.Column(db.String(200), nullable=False, comment="企业微信应用密钥", default="企业微信应用密钥")
+    SendEmailMaxNum = db.Column(db.Integer, nullable=False, comment="验证邮件的最大发送次数", default="5")
+    WebGG = db.Column(db.String(200), nullable=False, comment="网站公告", default="网站公告")
     PutDate = db.Column(db.DateTime, nullable=False, default=datetime.now, comment="公告更新时间")
-    KamiPayUrl = db.Column(db.String(200), nullable=False, comment="卡密购买地址")
-    WxAppId = db.Column(db.Integer, nullable=False, comment="wxpusher应用id")
-    WxAppToken = db.Column(db.String(200), nullable=False, comment="微信推送订阅密钥")
-    UserLoginFailMaxNum = db.Column(db.Integer, nullable=False, default=5, comment="用户最大登录失败次数")
-    UserCheckCreditNum = db.Column(db.Integer, nullable=False, default=1, comment="用户后台签到获得积分的数量")
+    KamiPayUrl = db.Column(db.String(200), nullable=False, comment="卡密购买地址", default="卡密购买地址")
+    WxAppId = db.Column(db.Integer, nullable=False, comment="wxpusher应用id", default="123")
+    WxAppToken = db.Column(db.String(200), nullable=False, comment="微信推送订阅密钥", default="微信推送订阅密钥")
+    UserLoginFailMaxNum = db.Column(db.Integer, nullable=False, default=5, comment="3")
+    UserCheckCreditNum = db.Column(db.Integer, nullable=False, default=1, comment="1")
     BCVipedDay = db.Column(db.Integer, nullable=False, default=2, comment="自动检测今日未跑用户自动补偿的vip天数")
     BCVipRunNum = db.Column(db.Integer, nullable=False, default=2, comment="自动检测今日未跑用户自动补偿的vip跑步次数")
     AgentWebGG = db.Column(db.String(100), comment="代理网站首页公告")
     WebSwitch = db.Column(db.Integer, nullable=False, default=1, comment="网站全局开关0关闭1打开")
     AndroidAppVersion = db.Column(db.Integer, default=0, comment="安卓APP软件版本号")
-    AndroidAppDownloadUrl = db.Column(db.TEXT(225), comment="安卓APP下载链接")
-    AndroidAppUpContext = db.Column(db.String(255), comment="软件更新内容")
+    AndroidAppDownloadUrl = db.Column(db.TEXT(225), comment="安卓APP下载链接", default="安卓APP下载链接")
+    AndroidAppUpContext = db.Column(db.String(255), comment="软件更新内容", default="软件更新内容")
 
     @property
     def json(self):
@@ -82,7 +82,7 @@ class Users(db.Model):
     Credit = db.Column(db.Integer, nullable=False, default=0, comment="用户积分")
     CheckState = db.Column(db.Integer, nullable=False, default=0, comment="签到状态,1:已签到；0:未签到")
     CheckDate = db.Column(db.DateTime, nullable=False, default=datetime.now, comment="签到的时间")
-    AdminUser = db.Column(db.String(50), default="lelege", comment="上级用户名")
+    AdminUser = db.Column(db.String(50), default="admin", comment="上级用户名")
     LoginFailNum = db.Column(db.Integer, nullable=False, default=0, comment="登录失败次数")
     UserLib = db.Column(db.String(20), nullable=False, default="普通用户", comment="用户身份")
     AgentQuota = db.Column(db.Integer, nullable=False, default=0, comment="添加代理的额度")
@@ -195,7 +195,7 @@ class NRunIMEICodes(db.Model):
 class VipLib(db.Model):
     __tablename__ = 'VipLib'
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True, unique=True)
-    Name = db.Column(db.String(50), nullable=False, comment="vip类型名")
+    Name = db.Column(db.String(50), nullable=False, comment="vip类型名", default="vip类型名")
 
     @property
     def json(self):

@@ -61,6 +61,3 @@ def get_imei_info(token: str):
 
 
 
-
-if __name__ == '__main__':
-    print(token_get_info('ca1abb12ebbe455c88a71e07b35a1cf9'))

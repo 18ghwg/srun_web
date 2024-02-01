@@ -16,8 +16,6 @@ from module.mysql.ModuleClass.WebClass import web_class
 from module.send import sendwxbot, send_wxmsg
 from tasks.task_list import Config
 
-
-
 # 配置
 scheduler = APScheduler()  # 实例化
 app.config.from_object(config)  # 载入config配置
@@ -26,9 +24,6 @@ db.init_app(app)  # 初始化数据库
 csrf.init_app(app)  # CSRF保护初始化
 search.init_app(app)  # 全局搜索器
 cache = Cache(app)  # 缓存配置
-
-
-
 
 migrate = Migrate(app, db)  # 实例化蓝图
 
@@ -67,11 +62,35 @@ def index():
     return render_template('index.html', **info)
 
 
-@app.route('/ceshi')
+@app.route('/install')
 @limiter.exempt()
-def ceshi():
-    # send_wxmsg("测试内容", "测试", "UID_aO9jevhkM5woAaURZfRi6x5mTFel")
-    return request.host_url
+def install():
+    import subprocess
+
+    from exts import db, app
+    from module.mysql.models import WebConfig, Users
+
+    # 定义要执行的命令列表
+    commands = ["flask db init", "flask db migrate", "flask db upgrade"]
+
+    # 依次执行每个命令
+    for cmd in commands:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print("输出内容：", result.stderr)
+        else:
+            print("错误信息：", result.stderr)
+            return f"安装失败原因：{result.stderr}"
+    with app.app_context():
+        # 创建网站配置
+        webconfig = WebConfig()
+        db.session.add(webconfig)
+        db.session.commit()
+        # 创建管理员账号
+        adminuser_data = Users(UserName='admin', Password='123456', Email='123456@qq.com', QQh=123456, UserLib="管理员")
+        db.session.add(adminuser_data)
+        db.session.commit()
+    return '安装成功,默认的管理员账号:admin 123456'
 
 
 @app.errorhandler(500)
@@ -122,14 +141,13 @@ def log_exception_finished(sender, exception, *args):
 got_request_exception.connect(log_exception_finished, app)
 
 
-
-# 自定义CORS策略
-@app.after_request
-def add_cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'  # 允许所有跨域请求
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRFToken, X-Csrftoken'
-    return response
+# # 自定义CORS策略
+# @app.after_request
+# def add_cors_header(response):
+#     response.headers['Access-Control-Allow-Origin'] = '*'  # 允许所有跨域请求
+#     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+#     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRFToken, X-Csrftoken'
+#     return response
 
 
 # 服务器请求前做的工作
@@ -153,21 +171,23 @@ def before_request():
         pass
     else:
         config.logger.info(f"【收到请求】获取到请求信息：{_data}")
-    # 判断网站是否维护 管理员可以访问
-    web_config = web_class.get_web_config()
-    if not web_config["WebSwitch"]:  # 网站关闭
-        if username:  # 已登录用户
-            if user_lib != "管理员":  # 不是管理员用户返回维护界面
-                return render_template("weihu.html")
+
+    if "install" not in request.path:
+        # 判断网站是否维护 管理员可以访问
+        web_config = web_class.get_web_config()
+        if not web_config["WebSwitch"]:  # 网站关闭
+            if username:  # 已登录用户
+                if user_lib != "管理员":  # 不是管理员用户返回维护界面
+                    return render_template("weihu.html")
+                else:
+                    pass
             else:
-                pass
+                if request.method == "POST":  # 对post接口进行返回信息
+                    return {"code": 400, "msg": f"网站正在维护中。。。<br>{datetime.now().date()}"}
+                else:
+                    pass
         else:
-            if request.method == "POST":  # 对post接口进行返回信息
-                return {"code": 400, "msg": f"网站正在维护中。。。<br>{datetime.now().date()}"}
-            else:
-                pass
-    else:
-        pass
+            pass
 
 
 # 上下文处理器
@@ -181,7 +201,6 @@ def context_processor():
         return info
     else:
         return {}
-
 
 
 if __name__ == '__main__':

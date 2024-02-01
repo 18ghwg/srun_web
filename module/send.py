@@ -39,10 +39,10 @@ def send_email(useremail: str, nr: str, subject: str):
 </div>
 """
         mail_from = f'mail{random.randint(0, 200)}@blog18.cn'  # 发件人账号
-        password = 'Sun0218..'  # 邮件密码
+        password = ''  # 邮件密码
         subject = subject  # 邮件标题
         subtype = 'html'  # 邮件类型
-        url = 'http://124.222.113.243:2180/mail_sys/send_mail_http.json'  # 宝塔邮局接口
+        url = 'http://127.0.0.1/mail_sys/send_mail_http.json'  # 宝塔邮局接口
         pdata = {'mail_from': mail_from, 'password': password, 'mail_to': useremail, 'subject': subject,
                  'content': email_nr,
                  'subtype': subtype}
@@ -64,9 +64,9 @@ def send_email2(useremail, nr, subject) -> bool:
     """获取邮箱配置"""
     EmailConfig = web_class.get_web_config()
     try:
-        my_sender = 'lelege@admin.blog18.cn'  # 发件人邮箱账号
-        my_pass = 'SUNle20020218'  # 发件人邮箱密码
-        stmpurl = "smtpdm.aliyun.com"  # stmp服务器地址
+        my_sender = ''  # 发件人邮箱账号
+        my_pass = ''  # 发件人邮箱密码
+        stmpurl = ""  # stmp服务器地址
         msg = MIMEText(
             f'<div style="background-color: white; border-top: 2px solid #12ADDB; box-shadow: 0 1px 3px #AAAAAA; line-height: 180%; padding: 0 15px 12px; width: 500px; margin: 50px auto; color: #555555; font-family: "Century Gothic", "Trebuchet MS", "Hiragino Sans GB", 微软雅黑, "Microsoft Yahei", Tahoma, Helvetica, Arial, "SimSun", sans-serif; font-size: 12px;">    <h2 style="border-bottom: 1px solid #DDD; font-size: 14px; font-weight: normal; padding: 13px 0 10px 8px;"><span style="color: #12ADDB; font-weight: bold;">&gt; </span>系统消息</h2><div style="padding: 0 12px 0 12px; margin-top: 18px;"><p>{nr}</p><p>本邮件为自动发送，如有疑问，联系我<a style="text-decoration: none; color: #12ADDB;" href="mailto:ghwg18@qq.com" target="_blank">观后无感</a>。        </p>    </div></div>',
             'html', 'utf-8')
